@@ -1,9 +1,22 @@
+import dayjs from 'dayjs';
+import duration from 'dayjs/plugin/duration';
+dayjs.extend(duration);
+
+const DATE_FORMAT = 'MMM D';
+const TIME_FORMAT = 'hh:mm';
+
 function getRandomArrayElement(items) {
   return items[Math.floor(Math.random() * items.length)];
 }
 
-function getRandomNumber(min = 0, max = 1) {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
+function getRandomInteger(min = 0, max = 1) {
+  const lower = Math.abs(Math.min(min, max));
+  const upper = Math.abs(Math.max(min, max));
+  return Math.floor(Math.random() * (upper - lower + 1)) + lower;
 }
 
-export { getRandomArrayElement, getRandomNumber };
+const startDateDelay = getRandomInteger(1, 5);
+const currentDate = new Date();
+const startDate = currentDate.setDate(currentDate.getDate() + startDateDelay);
+
+export { DATE_FORMAT, TIME_FORMAT, getRandomArrayElement, getRandomInteger };
