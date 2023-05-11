@@ -8,7 +8,6 @@ import AddNewPointView from '../view/add-new-point-view';
 export default class TripPresenter {
   sortComponent = new TripSortView();
   listComponent = new TripListView();
-  eventComponent = new EventView();
 
   constructor({ listContainer }) {
     this.listContainer = listContainer;
