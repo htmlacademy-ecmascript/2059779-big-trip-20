@@ -1,5 +1,5 @@
 import { EVENT_TYPES, OFFERS, PRICE_RANGE } from '../const';
-import { getRandomArrayElement, getRandomInteger } from '../utils';
+import { getRandomArrayElement, getRandomPositiveInteger } from '../utils';
 
 const mockOffers = [
   {
@@ -7,7 +7,7 @@ const mockOffers = [
     offers: {
       id: crypto.randomUUID(),
       title: getRandomArrayElement(OFFERS),
-      price: getRandomInteger(PRICE_RANGE.MIN, PRICE_RANGE.MAX),
+      price: getRandomPositiveInteger(PRICE_RANGE.MIN, PRICE_RANGE.MAX),
     }
   },
 ];

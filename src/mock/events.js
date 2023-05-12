@@ -1,19 +1,19 @@
 import { EVENT_TYPES, LOCATIONS, PRICE_RANGE } from '../const';
-import { getRandomArrayElement, getRandomInteger } from '../utils';
+import { getRandomArrayElement, getRandomPositiveInteger, getEventDates } from '../utils';
 import { mockOffers } from './offers';
 
-const mockEvents = [
-  {
+function getEvent() {
+  const dates = getEventDates();
+  return {
     id: crypto.randomUUID(),
-    basePrice: getRandomInteger(PRICE_RANGE.MIN, PRICE_RANGE.MAX),
-    dateFrom: ,
-    dateTo: ,
+    basePrice: getRandomPositiveInteger(PRICE_RANGE.MIN, PRICE_RANGE.MAX),
+    dateFrom: dates.startDate,
+    dateTo: dates.finishDate,
     destination: getRandomArrayElement(LOCATIONS),
-    isFavorite: !!getRandomInteger(),
+    isFavorite: !!getRandomPositiveInteger(),
     offers: [],
     type: getRandomArrayElement(EVENT_TYPES),
-  },
-  {},
-  {},
-  {},
-];
+  };
+}
+
+export { getEvent };
