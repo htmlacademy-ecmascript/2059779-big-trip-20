@@ -1,5 +1,6 @@
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
+
 dayjs.extend(duration);
 
 const DATE_FORMAT = 'MMM D';
@@ -16,18 +17,43 @@ function getRandomPositiveInteger(min = 0, max = 1) {
 }
 
 function getEventDates() {
-  const startDateDelay = getRandomPositiveInteger(1, 5);
+  const startDateDelay = getRandomPositiveInteger(1, 15);
   const currentDate = new Date();
-  currentDate.setDate(currentDate.getDate() + startDateDelay);
   const finishDateDelay = Math.random();
-  const finishDate = new Date(currentDate.getTime() + finishDateDelay * 24 * 60 * 60 * 1000);
-  const startDate = currentDate.toISOString();
-  finishDate.toISOString();
+  const startDate = new Date(currentDate.getTime());
+  startDate.setDate(currentDate.getDate() + startDateDelay);
+  const startHour = getRandomPositiveInteger(0, 23);
+  const startMinute = getRandomPositiveInteger(0, 59);
+  const startSecond = getRandomPositiveInteger(0, 59);
+  startDate.setHours(startHour, startMinute, startSecond);
+  const finishDate = new Date(startDate.getTime() + finishDateDelay * 24 * 60 * 60 * 1000);
+  const startDateISO = startDate.toISOString();
+  const finishDateISO = finishDate.toISOString();
 
   return {
-    startDate: startDate,
-    finishDate: finishDate
+    startDate: startDateISO,
+    finishDate: finishDateISO
   };
 }
 
-export { DATE_FORMAT, TIME_FORMAT, getRandomArrayElement, getRandomPositiveInteger, getEventDates };
+function formatDate(date, format) {
+  return dayjs(date).format(format);
+}
+
+function getDateDiff(date1, date2) {
+  const diff = dayjs.duration(dayjs(date1).diff(dayjs(date2)));
+  const days = diff.days();
+  const hours = diff.hours();
+  const minutes = diff.minutes();
+  let result = '';
+  if (days > 0) {
+    result += `${days}D `;
+  }
+  if (hours > 0) {
+    result += `${hours}H `;
+  }
+  result += `${minutes}M`;
+  return result;
+}
+
+export { DATE_FORMAT, TIME_FORMAT, getRandomArrayElement, getRandomPositiveInteger, getEventDates, formatDate, getDateDiff };

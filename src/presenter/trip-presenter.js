@@ -9,8 +9,14 @@ export default class TripPresenter {
   sortComponent = new TripSortView();
   listComponent = new TripListView();
 
-  constructor({ listContainer }) {
+  constructor({ listContainer, destinationsModel, offersModel, eventsModel }) {
     this.listContainer = listContainer;
+    this.destinationsModel = destinationsModel;
+    this.offersModel = offersModel;
+    this.eventsModel = eventsModel;
+
+    this.events = [...eventsModel.get()];
+    this.destinations = destinationsModel.getById();
   }
 
   init() {
@@ -19,8 +25,8 @@ export default class TripPresenter {
     render(new EditPointView(), this.listComponent.getElement());
     render(new AddNewPointView(), this.listComponent.getElement());
 
-    for (let i = 0; i < 3; i++) {
-      render(new EventView(), this.listComponent.getElement());
+    for (let i = 0; i < this.events.length; i++) {
+      render(new EventView({ event: this.events[i], }), this.listComponent.getElement());
     }
   }
 }

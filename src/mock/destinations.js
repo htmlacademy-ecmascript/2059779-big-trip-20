@@ -1,8 +1,8 @@
 import { DESTINATIONS, DESTINATIONS_DESCRIPTIONS } from '../const';
 import { getRandomArrayElement, getRandomPositiveInteger } from '../utils';
 
-const destinations = [
-  {
+function getRandomDestination() {
+  return {
     id: crypto.randomUUID(),
     name: getRandomArrayElement(DESTINATIONS),
     description: getRandomArrayElement(DESTINATIONS_DESCRIPTIONS),
@@ -12,7 +12,7 @@ const destinations = [
         description: '...was built in measureless eons behind history by the vast, loathsome shapes that seeped down from the dark stars.',
       }
     ],
-  }
-];
+  };
+}
 
-export { destinations };
+export { getRandomDestination };
