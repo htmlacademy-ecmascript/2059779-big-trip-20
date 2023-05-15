@@ -29,24 +29,13 @@ const DESTINATIONS_DESCRIPTIONS = [
 ];
 
 const OFFERS = [
-  'Don\'t listen to chanson +₽',
-  'Guide to bars +₽',
-  'Non-swearing driver +₽',
-  'Do not lose luggage during transportation +₽',
-  'The correct answer to the question "From what district?" -₽',
-  'Room without cockroaches +₽',
+  'Don\'t listen to chanson',
+  'Guide to bars',
+  'Non-swearing driver',
+  'Do not lose luggage during transportation',
+  'The correct answer to the question "From what district?"',
+  'Room without cockroaches',
 ];
-
-const EMPTY_EVENT = {
-  id: 0,
-  basePrice: 0,
-  dateFrom: null,
-  dateTo: null,
-  destination: null,
-  isFavorite: false,
-  offers: [],
-  type: OFFER_TYPES[0],
-};
 
 const PRICE_RANGE = {
   MIN: 200,
@@ -55,4 +44,4 @@ const PRICE_RANGE = {
 
 const MOCKS_COUNT = 6;
 
-export { OFFER_TYPES, DESTINATIONS, OFFERS, DESTINATIONS_DESCRIPTIONS, PRICE_RANGE, MOCKS_COUNT, EMPTY_EVENT };
+export { OFFER_TYPES, DESTINATIONS, OFFERS, DESTINATIONS_DESCRIPTIONS, PRICE_RANGE, MOCKS_COUNT };

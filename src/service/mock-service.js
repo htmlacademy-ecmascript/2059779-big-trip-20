@@ -50,14 +50,13 @@ export default class MockService {
 
       const hasOptions = getRandomPositiveInteger();
 
-      const offersIds = (hasOptions) ? optionsByType.offers
+      const offers = (hasOptions) ? optionsByType.offers
         .slice(0, getRandomPositiveInteger(0, MOCKS_COUNT))
-        .map((offer) => offer.id)
         : [];
 
       const dates = getEventDates();
 
-      return getRandomEvent(dates, destination.id, offersIds);
+      return getRandomEvent(dates, destination.name, offers);
     });
   }
 }

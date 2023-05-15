@@ -16,17 +16,23 @@ export default class TripPresenter {
     this.eventsModel = eventsModel;
 
     this.events = [...eventsModel.get()];
-    this.destinations = destinationsModel.getById();
+    this.destinations = [...destinationsModel.get()];
   }
 
   init() {
     render(this.sortComponent, this.listContainer);
     render(this.listComponent, this.listContainer);
-    render(new EditPointView(), this.listComponent.getElement());
-    render(new AddNewPointView(), this.listComponent.getElement());
+    render(new AddNewPointView({
+      event: this.events[0],
+      eventDestination: this.destinations[0],
+    }), this.listComponent.getElement());
+    render(new EditPointView({
+      event: this.events[1],
+      eventDestination: this.destinations[1],
+    }), this.listComponent.getElement());
 
-    for (let i = 0; i < this.events.length; i++) {
-      render(new EventView({ event: this.events[i], }), this.listComponent.getElement());
-    }
+    this.events.forEach((event) => {
+      render(new EventView({ event }), this.listComponent.getElement());
+    });
   }
 }
