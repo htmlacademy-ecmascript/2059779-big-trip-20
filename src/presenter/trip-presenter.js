@@ -17,15 +17,17 @@ export default class TripPresenter {
 
     this.events = [...eventsModel.get()];
     this.destinations = [...destinationsModel.get()];
+    this.offers = [...offersModel.get()];
   }
 
   init() {
     render(this.sortComponent, this.listContainer);
     render(this.listComponent, this.listContainer);
-    render(new AddNewPointView({
-      event: this.events[0],
-      eventDestination: this.destinations[0],
-    }), this.listComponent.getElement());
+    render(new AddNewPointView(
+      this.events[0],
+      this.destinations,
+      this.offers,
+    ), this.listComponent.getElement());
     render(new EditPointView({
       event: this.events[1],
       eventDestination: this.destinations[1],

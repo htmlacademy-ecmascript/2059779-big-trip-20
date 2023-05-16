@@ -1,13 +1,13 @@
 const OFFER_TYPES = [
-  'Taxi',
-  'Bus',
-  'Train',
-  'Ship',
-  'Dray',
-  'Hyperloop',
-  'Check-in',
-  'Sightseeing',
-  'Street fight',
+  'taxi',
+  'bus',
+  'train',
+  'ship',
+  'dray',
+  'hyperloop',
+  'check-in',
+  'sightseeing',
+  'street fight',
 ];
 
 const DESTINATIONS = [
@@ -34,7 +34,10 @@ const OFFERS = [
   'Non-swearing driver',
   'Do not lose luggage during transportation',
   'The correct answer to the question "From what district?"',
-  'Room without cockroaches',
+  'Order knife',
+  'Don\'t cut the kidney',
+  'Carry a bomb in your luggage',
+  'Steer the plane',
 ];
 
 const PRICE_RANGE = {

@@ -44,19 +44,20 @@ export default class MockService {
   generateEvents() {
     return Array.from({ length: MOCKS_COUNT }, () => {
       const type = getRandomArrayElement(OFFER_TYPES);
+
       const destination = getRandomArrayElement(this.destinations);
 
       const optionsByType = this.offers.find((optionByType) => optionByType.type === type);
 
       const hasOptions = getRandomPositiveInteger();
 
-      const offers = (hasOptions) ? optionsByType.offers
+      const options = (hasOptions) ? optionsByType.offers
         .slice(0, getRandomPositiveInteger(0, MOCKS_COUNT))
         : [];
 
       const dates = getEventDates();
 
-      return getRandomEvent(dates, destination.name, offers);
+      return getRandomEvent(dates, destination.name, type, options);
     });
   }
 }

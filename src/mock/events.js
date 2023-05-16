@@ -1,16 +1,16 @@
-import { OFFER_TYPES, PRICE_RANGE } from '../const';
-import { getRandomArrayElement, getRandomPositiveInteger } from '../utils';
+import { PRICE_RANGE } from '../const';
+import { getRandomPositiveInteger } from '../utils';
 
-function getRandomEvent(dates, destinationId, offersIds) {
+function getRandomEvent(dates, destinationName, type, options) {
   return {
     id: crypto.randomUUID(),
     basePrice: getRandomPositiveInteger(PRICE_RANGE.MIN, PRICE_RANGE.MAX),
     dateFrom: dates.startDate,
     dateTo: dates.finishDate,
-    destination: destinationId,
+    destination: destinationName,
     isFavorite: !!getRandomPositiveInteger(),
-    offers: offersIds,
-    type: getRandomArrayElement(OFFER_TYPES),
+    offers: options,
+    type: type,
   };
 }
 

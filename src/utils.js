@@ -56,4 +56,8 @@ function getDateDiff(date1, date2) {
   return result;
 }
 
-export { DATE_FORMAT, TIME_FORMAT, getRandomArrayElement, getRandomPositiveInteger, getEventDates, formatDate, getDateDiff };
+function capitalizeFirstLetter(str) {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+export { DATE_FORMAT, TIME_FORMAT, getRandomArrayElement, getRandomPositiveInteger, getEventDates, formatDate, getDateDiff, capitalizeFirstLetter };
