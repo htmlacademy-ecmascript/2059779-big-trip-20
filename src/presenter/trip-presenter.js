@@ -2,8 +2,8 @@ import { render } from '../render';
 import TripSortView from '../view/trip-sort-view';
 import TripListView from '../view/trip-list-view';
 import EventView from '../view/event-view';
-import EditPointView from '../view/edit-point-view';
-import AddNewPointView from '../view/add-new-point-view';
+import EditPointView from '../view/edit-event-view';
+import AddNewPointView from '../view/add-new-event-view';
 
 export default class TripPresenter {
   sortComponent = new TripSortView();
