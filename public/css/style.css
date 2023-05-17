@@ -534,8 +534,12 @@ main {
     background-image: url("../img/icons/check-in.png"); }
   .event__type-label--sightseeing::before {
     background-image: url("../img/icons/sightseeing.png"); }
-  .event__type-label--restaurant::before {
-    background-image: url("../img/icons/restaurant.png"); }
+  .event__type-label--dray::before {
+    background-image: url("../img/icons/dray.png"); }
+  .event__type-label--hyperloop::before {
+    background-image: url("../img/icons/hyperloop.png"); }
+  .event__type-label--street-fight::before {
+    background-image: url("../img/icons/street-fight.png"); }
   .event__type-label:hover {
     color: #ffd054; }
 

@@ -2,12 +2,23 @@ import { OFFER_TYPES } from '../const.js';
 import { createElement } from '../render.js';
 import { formatDate, capitalizeFirstLetter } from '../utils.js';
 
+const EMPTY_EVENT = {
+  id: 0,
+  basePrice: 0,
+  dateFrom: null,
+  dateTo: null,
+  destination: null,
+  isFavorite: false,
+  offers: [],
+  type: OFFER_TYPES[0],
+};
+
 function createTypesSelectList(offerTypes, eventType) {
   const offerType = (offerTypes.length === 0) ? '' :
     offerTypes.map((type) =>
       `<div class="event__type-item">
         <input id="event-type-${type}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${type}" ${(type === eventType) ? 'checked' : ''}>
-        <label class="event__type-label  event__type-label--${type}" for="event-type-${type}-1">${type}</label>
+        <label class="event__type-label  event__type-label--${type}" for="event-type-${type}-1">${capitalizeFirstLetter(type)}</label>
       </div>`).join('');
   return (/*html*/
     `<div class="event__type-wrapper">
@@ -63,7 +74,7 @@ function createAddNewEventTemplate(event, destinations, options) {
     `<li class="trip-events__item">
       <form class="event event--edit" action="#" method="post">
         <header class="event__header">
-            ${createTypesSelectList(offerTypes, type)}
+          ${createTypesSelectList(offerTypes, type)}
           <div class="event__field-group  event__field-group--destination">
             <label class="event__label  event__type-output" for="event-destination-1">
               ${capitalizeFirstLetter(type)}
@@ -118,7 +129,7 @@ function createAddNewEventTemplate(event, destinations, options) {
 }
 
 export default class AddNewPointView {
-  constructor(event, destinations, options) {
+  constructor(event = EMPTY_EVENT, destinations, options) {
     this.event = event;
     this.destinations = destinations;
     this.options = options;

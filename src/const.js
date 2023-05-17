@@ -7,7 +7,7 @@ const OFFER_TYPES = [
   'hyperloop',
   'check-in',
   'sightseeing',
-  'street fight',
+  'street-fight',
 ];
 
 const DESTINATIONS = [

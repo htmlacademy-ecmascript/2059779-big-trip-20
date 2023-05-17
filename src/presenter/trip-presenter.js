@@ -28,10 +28,11 @@ export default class TripPresenter {
       this.destinations,
       this.offers,
     ), this.listComponent.getElement());
-    render(new EditPointView({
-      event: this.events[1],
-      eventDestination: this.destinations[1],
-    }), this.listComponent.getElement());
+    render(new EditPointView(
+      this.events[1],
+      this.destinations,
+      this.offers,
+    ), this.listComponent.getElement());
 
     this.events.forEach((event) => {
       render(new EventView({ event }), this.listComponent.getElement());
