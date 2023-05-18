@@ -1,5 +1,5 @@
 import { OFFER_TYPES } from '../const.js';
-import { createElement } from '../render.js';
+import AbstractView from '../framework/view/abstract-view.js';
 import { formatDate, capitalizeFirstLetter } from '../utils.js';
 
 function createTypesSelectList(offerTypes, eventType) {
@@ -39,14 +39,12 @@ function createEventOffersList(offers, selectedOffers) {
   return `<div class="event__available-offers">${offersList}</div>`;
 }
 
-function createEditEventTemplate(event, destinations, options) {
-  const eventTitle = event.destination;
-  const type = event.type;
-  const description = (destinations.length > 0) ? destinations.find((destination) => destination.name === eventTitle).description : 'Неописуемая красота.';
-  const eventPrice = event.basePrice;
-  const selectedOffers = event.offers;
-  const timeFrom = formatDate(event.dateFrom, 'DD/MM/YY hh:mm');
-  const timeTo = formatDate(event.dateTo, 'DD/MM/YY hh:mm');
+function createEditEventTemplate({destination, type, offers, dateFrom, dateTo, basePrice }, destinations, options) {
+  const description = (destinations.length > 0) ? destinations.find((point) => point.name === destination).description : 'Неописуемая красота.';
+  const eventPrice = basePrice;
+  const selectedOffers = offers;
+  const timeFrom = formatDate(dateFrom, 'DD/MM/YY hh:mm');
+  const timeTo = formatDate(dateTo, 'DD/MM/YY hh:mm');
   const allOffers = options.find((option) => option.type === type).offers;
   const offersList = createEventOffersList(allOffers, selectedOffers);
   const offerTypes = OFFER_TYPES;
@@ -60,11 +58,11 @@ function createEditEventTemplate(event, destinations, options) {
               <label class="event__label  event__type-output" for="event-destination-1">
                 ${capitalizeFirstLetter(type)}
               </label>
-              <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${eventTitle}" list="destination-list-1">
+              <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destination}" list="destination-list-1">
               <datalist id="destination-list-1">
-                <option value="${eventTitle}"></option>
-                <option value="${eventTitle}"></option>
-                <option value="${eventTitle}"></option>
+                <option value="${destination}"></option>
+                <option value="${destination}"></option>
+                <option value="${destination}"></option>
               </datalist>
             </div>
 
@@ -105,26 +103,36 @@ function createEditEventTemplate(event, destinations, options) {
       </li>`);
 }
 
-export default class EditPointView {
-  constructor(event, destinations, options) {
-    this.event = event;
-    this.destinations = destinations;
-    this.options = options;
+export default class EditEventView extends AbstractView {
+  #event = null;
+  #destinations = null;
+  #options = null;
+  #handleFormSubmit = null;
+  #handleToggleClick = null;
+
+  constructor({ event, onFormSubmit, onToggleClick }, destinations, options) {
+    super();
+    this.#event = event;
+    this.#destinations = destinations;
+    this.#options = options;
+    this.#handleFormSubmit = onFormSubmit;
+    this.#handleToggleClick = onToggleClick;
+
+    this.element.querySelector('form').addEventListener('submit', this.#formSubmitHandler);
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#toggleClickHandler);
   }
 
-  getTemplate() {
-    return createEditEventTemplate(this.event, this.destinations, this.options);
+  get template() {
+    return createEditEventTemplate(this.#event, this.#destinations, this.#options);
   }
 
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
+  #formSubmitHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleFormSubmit();
+  };
 
-    return this.element;
-  }
-
-  removeElement() {
-    this.element = null;
-  }
+  #toggleClickHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleToggleClick();
+  };
 }
