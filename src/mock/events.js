@@ -1,10 +1,10 @@
-import { PRICE_RANGE } from '../const';
-import { getRandomPositiveInteger } from '../utils';
+import { PriceRange } from '../const';
+import { getRandomPositiveInteger } from '../utils/common';
 
 function getRandomEvent(dates, destinationName, type, options) {
   return {
     id: crypto.randomUUID(),
-    basePrice: getRandomPositiveInteger(PRICE_RANGE.MIN, PRICE_RANGE.MAX),
+    basePrice: getRandomPositiveInteger(PriceRange.MIN, PriceRange.MAX),
     dateFrom: dates.startDate,
     dateTo: dates.finishDate,
     destination: destinationName,

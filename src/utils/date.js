@@ -1,17 +1,8 @@
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
+import { getRandomPositiveInteger } from './common.js';
 
 dayjs.extend(duration);
-
-function getRandomArrayElement(items) {
-  return items[Math.floor(Math.random() * items.length)];
-}
-
-function getRandomPositiveInteger(min = 0, max = 1) {
-  const lower = Math.abs(Math.min(min, max));
-  const upper = Math.abs(Math.max(min, max));
-  return Math.floor(Math.random() * (upper - lower + 1)) + lower;
-}
 
 let currentDate = new Date();
 
@@ -55,8 +46,4 @@ function getDateDiff(date1, date2) {
   return result;
 }
 
-function capitalizeFirstLetter(str) {
-  return str.charAt(0).toUpperCase() + str.slice(1);
-}
-
-export { getRandomArrayElement, getRandomPositiveInteger, getEventDates, formatDate, getDateDiff, capitalizeFirstLetter };
+export { getRandomPositiveInteger, getEventDates, formatDate, getDateDiff };

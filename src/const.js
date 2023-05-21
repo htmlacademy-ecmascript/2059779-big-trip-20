@@ -40,11 +40,18 @@ const OFFERS = [
   'Steer the plane',
 ];
 
-const PRICE_RANGE = {
+const FilterType = {
+  EVERYTHING: 'Everything',
+  FUTURE: 'Future',
+  PRESENT: 'Present',
+  PAST: 'Past',
+};
+
+const PriceRange = {
   MIN: 200,
   MAX: 9000,
 };
 
 const MOCKS_COUNT = 6;
 
-export { OFFER_TYPES, DESTINATIONS, OFFERS, DESTINATIONS_DESCRIPTIONS, PRICE_RANGE, MOCKS_COUNT };
+export { OFFER_TYPES, DESTINATIONS, OFFERS, DESTINATIONS_DESCRIPTIONS, FilterType, PriceRange, MOCKS_COUNT };

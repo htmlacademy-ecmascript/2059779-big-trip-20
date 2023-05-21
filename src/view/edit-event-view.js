@@ -1,6 +1,7 @@
 import { OFFER_TYPES } from '../const.js';
 import AbstractView from '../framework/view/abstract-view.js';
-import { formatDate, capitalizeFirstLetter } from '../utils.js';
+import { capitalizeFirstLetter } from '../utils/common.js';
+import { formatDate } from '../utils/date.js';
 
 function createTypesSelectList(offerTypes, eventType) {
   const offerType = (offerTypes.length === 0) ? '' :

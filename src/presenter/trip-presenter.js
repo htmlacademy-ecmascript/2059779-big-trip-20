@@ -6,19 +6,20 @@ import EventView from '../view/event-view';
 import EditEventView from '../view/edit-event-view';
 import AddNewEventView from '../view/add-new-event-view';
 import AddEventButtonView from '../view/add-new-event-button-view.js';
+import EmptyListView from '../view/empty-list-view.js';
 
 export default class TripPresenter {
   #headerContainer = null;
   #listContainer = null;
+  #addEventButtonComponent = null;
+
   #events = null;
   #destinations = null;
   #offers = null;
-  #addEventButtonComponent = null;
 
+  #headerComponent = new TripInfoView();
   #sortComponent = new TripSortView();
   #listComponent = new TripListView();
-  #headerComponent = new TripInfoView();
-
 
   constructor({ headerContainer, listContainer, destinationsModel, offersModel, eventsModel }) {
     this.#headerContainer = headerContainer;
@@ -29,21 +30,36 @@ export default class TripPresenter {
   }
 
   init() {
-    render(this.#headerComponent, this.#headerContainer);
-    render(this.#sortComponent, this.#listContainer);
-    render(this.#listComponent, this.#listContainer);
+    this.#renderAddEventButton();
+    this.#renderEventsList();
+  }
 
+  #renderAddEventButton() {
     this.#addEventButtonComponent = new AddEventButtonView({
       onClick: this.#handleAddEventButtonClick
     });
     render(this.#addEventButtonComponent, this.#headerComponent.element);
+  }
 
+  #renderEventsList() {
+    render(this.#headerComponent, this.#headerContainer);
+
+    if (this.#events.length === 0) {
+      render(new EmptyListView(), this.#listContainer);
+    } else {
+      render(this.#sortComponent, this.#listContainer);
+    }
+
+    render(this.#listComponent, this.#listContainer);
     this.#events.forEach((event) => {
       this.#renderEvent(event);
     });
   }
 
   #handleAddEventButtonClick = () => {
+    if (!this.#listComponent) {
+      render(this.#listComponent, this.#listContainer); //Пока не работает, или работает не так, как нужно
+    }
     render(new AddNewEventView(
       { event: this.#events[0] },
       this.#destinations,

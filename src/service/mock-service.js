@@ -2,8 +2,8 @@ import { getRandomDestination } from '../mock/destinations';
 import { getRandomOfferOption } from '../mock/offers';
 import { getRandomEvent } from '../mock/events';
 import { OFFER_TYPES, MOCKS_COUNT } from '../const';
-import { getRandomPositiveInteger, getRandomArrayElement, getEventDates } from '../utils';
-
+import { getRandomPositiveInteger, getRandomArrayElement } from '../utils/common';
+import { getEventDates } from '../utils/date';
 
 export default class MockService {
   destinations = [];

@@ -1,5 +1,6 @@
 import AbstractView from '../framework/view/abstract-view.js';
-import { formatDate, getDateDiff, capitalizeFirstLetter } from '../utils.js';
+import { capitalizeFirstLetter } from '../utils/common.js';
+import { formatDate, getDateDiff } from '../utils/date.js';
 
 function createEventViewOffersList(offers) {
   const offersList = offers.length === 0 ? '' :
