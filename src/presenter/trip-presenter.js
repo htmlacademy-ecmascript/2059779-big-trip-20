@@ -1,4 +1,4 @@
-import { render, replace, RenderPosition } from '../framework/render.js';
+import { render, replace, remove, RenderPosition } from '../framework/render.js';
 import TripSortView from '../view/trip-sort-view';
 import TripListView from '../view/trip-list-view';
 import TripInfoView from '../view/trip-info-view.js';
@@ -11,7 +11,6 @@ import EmptyListView from '../view/empty-list-view.js';
 export default class TripPresenter {
   #headerContainer = null;
   #listContainer = null;
-  #addEventButtonComponent = null;
 
   #events = null;
   #destinations = null;
@@ -35,10 +34,44 @@ export default class TripPresenter {
   }
 
   #renderAddEventButton() {
-    this.#addEventButtonComponent = new AddEventButtonView({
-      onClick: this.#handleAddEventButtonClick
+    const escKeyDownHandler = (evt) => {
+      if (evt.key === 'Escape') {
+        evt.preventDefault();
+        document.removeEventListener('keydown', escKeyDownHandler);
+        removeNewEventComponent.apply(this);
+      }
+    };
+
+    const newEventComponent = new AddNewEventView({
+      event: this.#events[0],
+      destinations: this.#destinations,
+      options: this.#offers,
+      onFormSubmit: () => {
+        removeNewEventComponent.apply(this);
+        document.removeEventListener('keydown', escKeyDownHandler);
+      },
+      onCancelClick: () => {
+        document.removeEventListener('keydown', escKeyDownHandler);
+        removeNewEventComponent.apply(this);
+      },
     });
-    render(this.#addEventButtonComponent, this.#headerComponent.element);
+
+    function renderNewEventComponent () {
+      render(newEventComponent, this.#listComponent.element, RenderPosition.AFTERBEGIN);
+    }
+
+    function removeNewEventComponent () {
+      remove(newEventComponent, this.#listComponent.element, RenderPosition.AFTERBEGIN);
+    }
+
+    const addEventButtonComponent = new AddEventButtonView({
+      onClick: () => {
+        renderNewEventComponent.apply(this);
+        document.addEventListener('keydown', escKeyDownHandler);
+      }
+    });
+
+    render(addEventButtonComponent, this.#headerComponent.element);
   }
 
   #renderEventsList() {
@@ -55,17 +88,6 @@ export default class TripPresenter {
       this.#renderEvent(event);
     });
   }
-
-  #handleAddEventButtonClick = () => {
-    if (!this.#listComponent) {
-      render(this.#listComponent, this.#listContainer); //Пока не работает, или работает не так, как нужно
-    }
-    render(new AddNewEventView(
-      { event: this.#events[0] },
-      this.#destinations,
-      this.#offers,
-    ), this.#listComponent.element, RenderPosition.AFTERBEGIN);
-  };
 
   #renderEvent(event) {
     const escKeyDownHandler = (evt) => {
@@ -94,10 +116,14 @@ export default class TripPresenter {
         onToggleClick: () => {
           replaceFromFormToItem();
           document.removeEventListener('keydown', escKeyDownHandler);
-        }
-      },
-      this.#destinations,
-      this.#offers,
+        },
+        onDeleteClick: () => {
+          document.removeEventListener('keydown', escKeyDownHandler);
+          removeForm();
+        },
+        destinations: this.#destinations,
+        options: this.#offers
+      }
     );
 
     function replaceFromItemToForm() {
@@ -106,6 +132,10 @@ export default class TripPresenter {
 
     function replaceFromFormToItem() {
       replace(eventComponent, editEventComponent);
+    }
+
+    function removeForm() {
+      remove(editEventComponent);
     }
 
     render(eventComponent, this.#listComponent.element);

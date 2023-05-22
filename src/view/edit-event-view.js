@@ -110,17 +110,20 @@ export default class EditEventView extends AbstractView {
   #options = null;
   #handleFormSubmit = null;
   #handleToggleClick = null;
+  #handleDeleteClick = null;
 
-  constructor({ event, onFormSubmit, onToggleClick }, destinations, options) {
+  constructor({ event, onFormSubmit, onToggleClick, onDeleteClick, destinations, options }) {
     super();
     this.#event = event;
     this.#destinations = destinations;
     this.#options = options;
     this.#handleFormSubmit = onFormSubmit;
     this.#handleToggleClick = onToggleClick;
+    this.#handleDeleteClick = onDeleteClick;
 
     this.element.querySelector('form').addEventListener('submit', this.#formSubmitHandler);
     this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#toggleClickHandler);
+    this.element.querySelector('.event__reset-btn').addEventListener('click', this.#deleteClickHandler);
   }
 
   get template() {
@@ -135,5 +138,10 @@ export default class EditEventView extends AbstractView {
   #toggleClickHandler = (evt) => {
     evt.preventDefault();
     this.#handleToggleClick();
+  };
+
+  #deleteClickHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleDeleteClick();
   };
 }

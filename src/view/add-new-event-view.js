@@ -131,15 +131,32 @@ export default class AddNewEventView extends AbstractView {
   #event = null;
   #destinations = null;
   #options = null;
+  #handleFormSubmit = null;
+  #handleCancelClick = null;
 
-  constructor({ event } = EMPTY_EVENT, destinations, options) {
+  constructor({ event = EMPTY_EVENT, destinations, options, onFormSubmit, onCancelClick }) {
     super();
     this.#event = event;
     this.#destinations = destinations;
     this.#options = options;
+    this.#handleFormSubmit = onFormSubmit;
+    this.#handleCancelClick = onCancelClick;
+
+    this.element.querySelector('form').addEventListener('submit', this.#formSubmitHandler);
+    this.element.querySelector('.event__reset-btn').addEventListener('click', this.#cancelClickHandler);
   }
 
   get template() {
     return createAddNewEventTemplate(this.#event, this.#destinations, this.#options);
   }
+
+  #formSubmitHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleFormSubmit();
+  };
+
+  #cancelClickHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleCancelClick();
+  };
 }

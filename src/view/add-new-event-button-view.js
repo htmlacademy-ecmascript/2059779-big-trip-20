@@ -11,7 +11,7 @@ export default class AddEventButtonView extends AbstractView {
     super();
     this.#handleClick = onClick;
 
-    this.element.addEventListener('click', this.#clickHandler, { once: true}); //Временное решение, чтобы не создавать бесконечно много пунктов
+    this.element.addEventListener('click', this.#clickHandler, { once: true}); //Временное решение, чтобы не создавать бесконечно много пунктов, как его сделать более реалистичным не могу придумать пока что.
   }
 
   get template() {
