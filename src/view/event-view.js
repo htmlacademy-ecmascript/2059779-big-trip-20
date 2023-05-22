@@ -70,6 +70,8 @@ export default class EventView extends AbstractView {
     this.#handleEditClick = onEditClick;
 
     this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#editClickHandler);
+    this.favoriteButton = this.element.querySelector('.event__favorite-btn');
+    this.favoriteButton.addEventListener('click', this.#favoriteClickHandler);
   }
 
   get template() {
@@ -79,5 +81,17 @@ export default class EventView extends AbstractView {
   #editClickHandler = (evt) => {
     evt.preventDefault();
     this.#handleEditClick();
+  };
+
+  //Не совсем понимаю, должна ли быть эта логика во View, а если нет, то как её передать. А ещё в макете фокус на кнопках неудачно оформлен.
+  #favoriteClickHandler = (evt) => {
+    evt.preventDefault();
+    if (this.#event.isFavorite) {
+      this.favoriteButton.classList.toggle('event__favorite-btn--active');
+      this.#event.isFavorite = false;
+    } else {
+      this.favoriteButton.classList.toggle('event__favorite-btn--active');
+      this.#event.isFavorite = true;
+    }
   };
 }
