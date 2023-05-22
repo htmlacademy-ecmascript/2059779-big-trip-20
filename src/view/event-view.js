@@ -83,15 +83,10 @@ export default class EventView extends AbstractView {
     this.#handleEditClick();
   };
 
-  //Не совсем понимаю, должна ли быть эта логика во View, а если нет, то как её передать. А ещё в макете фокус на кнопках неудачно оформлен.
+  //Не совсем понимаю, должна ли быть эта логика во View, а если нет, то как её передать. То есть я понимаю, что можно параметрами, но выглядит как-то избыточно. А ещё в макете фокус на кнопках неудачно оформлен.
   #favoriteClickHandler = (evt) => {
     evt.preventDefault();
-    if (this.#event.isFavorite) {
-      this.favoriteButton.classList.toggle('event__favorite-btn--active');
-      this.#event.isFavorite = false;
-    } else {
-      this.favoriteButton.classList.toggle('event__favorite-btn--active');
-      this.#event.isFavorite = true;
-    }
+    this.favoriteButton.classList.toggle('event__favorite-btn--active');
+    this.#event.isFavorite = !this.#event.isFavorite;
   };
 }
