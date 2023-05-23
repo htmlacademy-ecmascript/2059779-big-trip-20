@@ -1,5 +1,6 @@
-import { createElement } from '../render.js';
-import { formatDate, getDateDiff, capitalizeFirstLetter } from '../utils.js';
+import AbstractView from '../framework/view/abstract-view.js';
+import { capitalizeFirstLetter } from '../utils/common.js';
+import { formatDate, getDateDiff } from '../utils/date.js';
 
 function createEventViewOffersList(offers) {
   const offersList = offers.length === 0 ? '' :
@@ -59,24 +60,33 @@ function createEventViewTemplate(event) {
       </li>`);
 }
 
-export default class EventView {
-  constructor({event}) {
-    this.event = event;
+export default class EventView extends AbstractView {
+  #event = null;
+  #handleEditClick = null;
+
+  constructor({ event, onEditClick }) {
+    super();
+    this.#event = event;
+    this.#handleEditClick = onEditClick;
+
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#editClickHandler);
+    this.favoriteButton = this.element.querySelector('.event__favorite-btn');
+    this.favoriteButton.addEventListener('click', this.#favoriteClickHandler);
   }
 
-  getTemplate() {
-    return createEventViewTemplate(this.event);
+  get template() {
+    return createEventViewTemplate(this.#event);
   }
 
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
+  #editClickHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleEditClick();
+  };
 
-    return this.element;
-  }
-
-  removeElement() {
-    this.element = null;
-  }
+  //Не совсем понимаю, должна ли быть эта логика во View, а если нет, то как её передать. То есть я понимаю, что можно параметрами, но выглядит как-то избыточно. А ещё в макете фокус на кнопках неудачно оформлен.
+  #favoriteClickHandler = (evt) => {
+    evt.preventDefault();
+    this.favoriteButton.classList.toggle('event__favorite-btn--active');
+    this.#event.isFavorite = !this.#event.isFavorite;
+  };
 }

@@ -32,19 +32,26 @@ const OFFERS = [
   'Don\'t listen to chanson',
   'Guide to bars',
   'Non-swearing driver',
-  'Do not lose luggage during transportation',
+  'Don\'t lose luggage during transportation',
   'The correct answer to the question "From what district?"',
-  'Order knife',
+  'Order a knife',
   'Don\'t cut the kidney',
   'Carry a bomb in your luggage',
   'Steer the plane',
 ];
 
-const PRICE_RANGE = {
+const FilterType = {
+  EVERYTHING: 'Everything',
+  FUTURE: 'Future',
+  PRESENT: 'Present',
+  PAST: 'Past',
+};
+
+const PriceRange = {
   MIN: 200,
   MAX: 9000,
 };
 
 const MOCKS_COUNT = 6;
 
-export { OFFER_TYPES, DESTINATIONS, OFFERS, DESTINATIONS_DESCRIPTIONS, PRICE_RANGE, MOCKS_COUNT };
+export { OFFER_TYPES, DESTINATIONS, OFFERS, DESTINATIONS_DESCRIPTIONS, FilterType, PriceRange, MOCKS_COUNT };

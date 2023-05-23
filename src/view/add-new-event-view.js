@@ -1,6 +1,7 @@
 import { OFFER_TYPES } from '../const.js';
-import { createElement } from '../render.js';
-import { formatDate, capitalizeFirstLetter } from '../utils.js';
+import AbstractView from '../framework/view/abstract-view.js';
+import { capitalizeFirstLetter } from '../utils/common.js';
+import { formatDate } from '../utils/date.js';
 
 const EMPTY_EVENT = {
   id: 0,
@@ -57,15 +58,13 @@ function createEventOffersList(offers, selectedOffers) {
   return `<div class="event__available-offers">${offersList}</div>`;
 }
 
-function createAddNewEventTemplate(event, destinations, options) {
-  const eventTitle = event.destination;
-  const type = event.type;
-  const description = (destinations.length > 0) ? destinations.find((destination) => destination.name === eventTitle).description : 'Неописуемая красота.';
-  const eventPhotos = (destinations.length > 0) ? destinations.find((destination) => destination.name === eventTitle).pictures : [];
+function createAddNewEventTemplate({ destination, type, offers, dateFrom, dateTo }, destinations, options) {
+  const description = (destinations.length > 0) ? destinations.find((point) => point.name === destination).description : 'Неописуемая красота.';
+  const eventPhotos = (destinations.length > 0) ? destinations.find((point) => point.name === destination).pictures : [];
   const allOffers = options.find((option) => option.type === type).offers;
-  const selectedOffers = event.offers;
-  const timeFrom = formatDate(event.dateFrom, 'DD/MM/YY hh:mm');
-  const timeTo = formatDate(event.dateTo, 'DD/MM/YY hh:mm');
+  const selectedOffers = offers;
+  const timeFrom = formatDate(dateFrom, 'DD/MM/YY hh:mm');
+  const timeTo = formatDate(dateTo, 'DD/MM/YY hh:mm');
   const pictures = createDestinationPhotos(eventPhotos);
   const offersList = createEventOffersList(allOffers, selectedOffers);
   const offerTypes = OFFER_TYPES;
@@ -79,11 +78,11 @@ function createAddNewEventTemplate(event, destinations, options) {
             <label class="event__label  event__type-output" for="event-destination-1">
               ${capitalizeFirstLetter(type)}
             </label>
-            <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${eventTitle}" list="destination-list-1">
+            <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destination}" list="destination-list-1">
             <datalist id="destination-list-1">
-              <option value="${eventTitle}"></option>
-              <option value="${eventTitle}"></option>
-              <option value="${eventTitle}"></option>
+              <option value="${destination}"></option>
+              <option value="${destination}"></option>
+              <option value="${destination}"></option>
             </datalist>
           </div>
 
@@ -128,26 +127,36 @@ function createAddNewEventTemplate(event, destinations, options) {
   );
 }
 
-export default class AddNewPointView {
-  constructor(event = EMPTY_EVENT, destinations, options) {
-    this.event = event;
-    this.destinations = destinations;
-    this.options = options;
+export default class AddNewEventView extends AbstractView {
+  #event = null;
+  #destinations = null;
+  #options = null;
+  #handleFormSubmit = null;
+  #handleCancelClick = null;
+
+  constructor({ event = EMPTY_EVENT, destinations, options, onFormSubmit, onCancelClick }) {
+    super();
+    this.#event = event;
+    this.#destinations = destinations;
+    this.#options = options;
+    this.#handleFormSubmit = onFormSubmit;
+    this.#handleCancelClick = onCancelClick;
+
+    this.element.querySelector('form').addEventListener('submit', this.#formSubmitHandler);
+    this.element.querySelector('.event__reset-btn').addEventListener('click', this.#cancelClickHandler);
   }
 
-  getTemplate() {
-    return createAddNewEventTemplate(this.event, this.destinations, this.options);
+  get template() {
+    return createAddNewEventTemplate(this.#event, this.#destinations, this.#options);
   }
 
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
+  #formSubmitHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleFormSubmit();
+  };
 
-    return this.element;
-  }
-
-  removeElement() {
-    this.element = null;
-  }
+  #cancelClickHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleCancelClick();
+  };
 }

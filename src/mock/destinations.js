@@ -1,5 +1,5 @@
 import { DESTINATIONS, DESTINATIONS_DESCRIPTIONS } from '../const';
-import { getRandomArrayElement, getRandomPositiveInteger } from '../utils';
+import { getRandomArrayElement, getRandomPositiveInteger } from '../utils/common';
 
 function getRandomDestination() {
 
