@@ -63,7 +63,8 @@ export default class TripPresenter {
       listComponent: this.#listComponent.element,
       destinations: this.#destinations,
       options: this.#offers,
-      onDataUpdate: this.#handleEventUpdate
+      onDataUpdate: this.#handleEventUpdate,
+      onModeChange: this.#handleModeChange,
     });
 
     eventPresenter.init(event);
@@ -74,4 +75,8 @@ export default class TripPresenter {
     this.#eventPresenters.forEach((presenter) => presenter.destroy());
     this.#eventPresenters.clear();
   }
+
+  #handleModeChange = () => {
+    this.#eventPresenters.forEach((presenter) => presenter.resetView());
+  };
 }

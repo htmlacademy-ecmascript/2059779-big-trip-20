@@ -1,7 +1,7 @@
 import TripInfoView from '../view/trip-info-view.js';
 import TripFiltersView from '../view/trip-filters-view';
 import { generateFilter } from '../mock/filters';
-import { render, remove, RenderPosition } from '../framework/render';
+import { render } from '../framework/render';
 //import AddNewEventView from '../view/add-new-event-view';
 import AddEventButtonView from '../view/add-new-event-button-view.js';
 
