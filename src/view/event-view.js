@@ -60,6 +60,13 @@ function createEventViewTemplate(event) {
       </li>`);
 }
 
+function createEventListViewTemplate(event) {
+  return (/*html*/
+    `<ul class="trip-events__list">
+      ${createEventViewTemplate(event)}
+    </ul>`);
+}
+
 export default class EventView extends AbstractView {
   #event = null;
   #handleEditClick = null;
@@ -75,7 +82,7 @@ export default class EventView extends AbstractView {
   }
 
   get template() {
-    return createEventViewTemplate(this.#event);
+    return createEventListViewTemplate(this.#event);
   }
 
   #editClickHandler = (evt) => {

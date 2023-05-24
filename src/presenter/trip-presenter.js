@@ -1,9 +1,7 @@
-import { render, replace, remove } from '../framework/render.js';
+import { render } from '../framework/render.js';
 import TripSortView from '../view/trip-sort-view';
-import TripListView from '../view/trip-list-view';
-import EventView from '../view/event-view';
-import EditEventView from '../view/edit-event-view';
 import EmptyListView from '../view/empty-list-view.js';
+import EventPresenter from './event-presenter.js';
 
 export default class TripPresenter {
   #listContainer = null;
@@ -13,7 +11,7 @@ export default class TripPresenter {
   #offers = null;
 
   #sortComponent = new TripSortView();
-  #listComponent = new TripListView();
+  #emptyListComponent = new EmptyListView();
 
   constructor({ listContainer, destinationsModel, offersModel, eventsModel }) {
     this.#listContainer = listContainer;
@@ -23,71 +21,35 @@ export default class TripPresenter {
   }
 
   init() {
-    this.#renderEventsList();
+    this.#renderTrip();
   }
 
-  #renderEventsList() {
+  #renderTrip() {
     if (this.#events.length === 0) {
-      render(new EmptyListView(), this.#listContainer);
+      this.#renderEmptyList();
     } else {
-      render(this.#sortComponent, this.#listContainer);
+      this.#renderSort();
+      this.#events.forEach((event) => {
+        this.#renderEvent(event);
+      });
     }
+  }
 
-    render(this.#listComponent, this.#listContainer);
-    this.#events.forEach((event) => {
-      this.#renderEvent(event);
-    });
+  #renderSort() {
+    render(this.#sortComponent, this.#listContainer);
+  }
+
+  #renderEmptyList() {
+    render(this.#emptyListComponent, this.#listContainer);
   }
 
   #renderEvent(event) {
-    const escKeyDownHandler = (evt) => {
-      if (evt.key === 'Escape') {
-        evt.preventDefault();
-        replaceFromFormToItem();
-        document.removeEventListener('keydown', escKeyDownHandler);
-      }
-    };
-
-    const eventComponent = new EventView({
-      event,
-      onEditClick: () => {
-        replaceFromItemToForm();
-        document.addEventListener('keydown', escKeyDownHandler);
-      }
+    const eventPresenter = new EventPresenter({
+      listContainer: this.#listContainer,
+      destinations: this.#destinations,
+      options: this.#offers
     });
 
-    const editEventComponent = new EditEventView(
-      {
-        event,
-        onFormSubmit: () => {
-          replaceFromFormToItem();
-          document.removeEventListener('keydown', escKeyDownHandler);
-        },
-        onToggleClick: () => {
-          replaceFromFormToItem();
-          document.removeEventListener('keydown', escKeyDownHandler);
-        },
-        onDeleteClick: () => {
-          document.removeEventListener('keydown', escKeyDownHandler);
-          removeForm();
-        },
-        destinations: this.#destinations,
-        options: this.#offers
-      }
-    );
-
-    function replaceFromItemToForm() {
-      replace(editEventComponent, eventComponent);
-    }
-
-    function replaceFromFormToItem() {
-      replace(eventComponent, editEventComponent);
-    }
-
-    function removeForm() {
-      remove(editEventComponent);
-    }
-
-    render(eventComponent, this.#listComponent.element);
+    eventPresenter.init(event);
   }
 }
