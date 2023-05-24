@@ -3,7 +3,7 @@ import EventView from '../view/event-view';
 import EditEventView from '../view/edit-event-view';
 
 export default class EventPresenter {
-  #listContainer = null;
+  #listComponent = null;
 
   #event = null;
   #destinations = null;
@@ -12,14 +12,17 @@ export default class EventPresenter {
   #eventComponent = null;
   #editEventComponent = null;
 
-  constructor({ listContainer, destinations, options }) {
-    this.#listContainer = listContainer;
+  constructor({ listComponent, destinations, options }) {
+    this.#listComponent = listComponent;
     this.#destinations = destinations;
     this.#options = options;
   }
 
   init(event) {
     this.#event = event;
+
+    const prevEventComponent = this.#eventComponent;
+    const prevEventEditComponent = this.#editEventComponent;
 
     this.#eventComponent = new EventView({
       event: this.#event,
@@ -30,22 +33,36 @@ export default class EventPresenter {
       {
         event: this.#event,
         onFormSubmit: this.#handleFormSubmit,
-        onToggleClick: this.#handleToggleClick,
+        onToggleClick: this.#handleFormSubmit,
         onDeleteClick: this.#handleDeleteClick,
         destinations: this.#destinations,
         options: this.#options,
       }
     );
 
-    render(this.#eventComponent, this.#listContainer);
+    if (prevEventComponent === null || prevEventEditComponent === null) {
+      render(this.#eventComponent, this.#listComponent);
+      return;
+    }
+
+    if (this.#listComponent.contains(prevEventComponent)) {
+      replace(this.#eventComponent, prevEventComponent);
+    }
+
+    if (this.#listComponent.contains(prevEventEditComponent)) {
+      replace(this.#editEventComponent, prevEventEditComponent);
+    }
+
+    remove(prevEventComponent);
+    remove(prevEventEditComponent);
   }
 
-  #replaceFromItemToForm() {
+  #replaceItemToForm() {
     replace(this.#editEventComponent, this.#eventComponent);
-    document.removeEventListener('keydown', this.#escKeyDownHandler);
+    document.addEventListener('keydown', this.#escKeyDownHandler);
   }
 
-  #replaceFromFormToItem() {
+  #replaceFormToItem() {
     replace(this.#eventComponent, this.#editEventComponent);
     document.removeEventListener('keydown', this.#escKeyDownHandler);
   }
@@ -58,19 +75,19 @@ export default class EventPresenter {
   #escKeyDownHandler = (evt) => {
     if (evt.key === 'Escape') {
       evt.preventDefault();
-      this.#replaceFromFormToItem();
+      this.#replaceFormToItem();
     }
   };
 
-  #handleFormSubmit() {
-    this.#replaceFromFormToItem();
-  }
+  #handleFormSubmit = () => {
+    this.#replaceFormToItem();
+  };
 
-  #handleToggleClick() {
-    this.#replaceFromItemToForm();
-  }
+  #handleToggleClick = () => {
+    this.#replaceItemToForm();
+  };
 
-  #handleDeleteClick() {
+  #handleDeleteClick = () => {
     this.#removeForm();
-  }
+  };
 }
