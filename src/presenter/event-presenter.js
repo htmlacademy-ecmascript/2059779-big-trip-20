@@ -12,10 +12,13 @@ export default class EventPresenter {
   #eventComponent = null;
   #editEventComponent = null;
 
-  constructor({ listComponent, destinations, options }) {
+  #handleDataUpdate = null;
+
+  constructor({ listComponent, destinations, options, onDataUpdate }) {
     this.#listComponent = listComponent;
     this.#destinations = destinations;
     this.#options = options;
+    this.#handleDataUpdate = onDataUpdate;
   }
 
   init(event) {
@@ -26,14 +29,15 @@ export default class EventPresenter {
 
     this.#eventComponent = new EventView({
       event: this.#event,
-      onEditClick: this.#handleToggleClick,
+      onEditClick: this.#handleToggleOpen,
+      onFavoriteClick: this.#handleFavoriteClick,
     });
 
     this.#editEventComponent = new EditEventView(
       {
         event: this.#event,
         onFormSubmit: this.#handleFormSubmit,
-        onToggleClick: this.#handleFormSubmit,
+        onToggleClick: this.#handleToggleClose,
         onDeleteClick: this.#handleDeleteClick,
         destinations: this.#destinations,
         options: this.#options,
@@ -45,16 +49,21 @@ export default class EventPresenter {
       return;
     }
 
-    if (this.#listComponent.contains(prevEventComponent)) {
+    if (this.#listComponent.contains(prevEventComponent.element)) {
       replace(this.#eventComponent, prevEventComponent);
     }
 
-    if (this.#listComponent.contains(prevEventEditComponent)) {
+    if (this.#listComponent.contains(prevEventEditComponent.element)) {
       replace(this.#editEventComponent, prevEventEditComponent);
     }
 
     remove(prevEventComponent);
     remove(prevEventEditComponent);
+  }
+
+  destroy() {
+    remove(this.#eventComponent);
+    remove(this.#editEventComponent);
   }
 
   #replaceItemToForm() {
@@ -79,15 +88,24 @@ export default class EventPresenter {
     }
   };
 
-  #handleFormSubmit = () => {
+  #handleFormSubmit = (event) => {
+    this.#replaceFormToItem();
+    this.#handleDataUpdate(event);
+  };
+
+  #handleToggleClose = () => {
     this.#replaceFormToItem();
   };
 
-  #handleToggleClick = () => {
+  #handleToggleOpen = () => {
     this.#replaceItemToForm();
   };
 
   #handleDeleteClick = () => {
     this.#removeForm();
+  };
+
+  #handleFavoriteClick = () => {
+    this.#handleDataUpdate({ ...this.#event, isFavorite: !this.#event.isFavorite });
   };
 }

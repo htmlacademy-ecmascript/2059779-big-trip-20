@@ -63,11 +63,13 @@ function createEventViewTemplate(event) {
 export default class EventView extends AbstractView {
   #event = null;
   #handleEditClick = null;
+  #handleFavoriteClick = null;
 
-  constructor({ event, onEditClick }) {
+  constructor({ event, onEditClick, onFavoriteClick }) {
     super();
     this.#event = event;
     this.#handleEditClick = onEditClick;
+    this.#handleFavoriteClick = onFavoriteClick;
 
     this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#editClickHandler);
     this.favoriteButton = this.element.querySelector('.event__favorite-btn');
@@ -86,7 +88,7 @@ export default class EventView extends AbstractView {
   //Не совсем понимаю, должна ли быть эта логика во View, а если нет, то как её передать. То есть я понимаю, что можно параметрами, но выглядит как-то избыточно. А ещё в макете фокус на кнопках неудачно оформлен.
   #favoriteClickHandler = (evt) => {
     evt.preventDefault();
+    this.#handleFavoriteClick();
     this.favoriteButton.classList.toggle('event__favorite-btn--active');
-    this.#event.isFavorite = !this.#event.isFavorite;
   };
 }
