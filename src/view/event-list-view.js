@@ -7,7 +7,7 @@ function createTripListTemplate() {
       </ul>`);
 }
 
-export default class TripListView extends AbstractView {
+export default class EventListView extends AbstractView {
   get template() {
     return createTripListTemplate();
   }

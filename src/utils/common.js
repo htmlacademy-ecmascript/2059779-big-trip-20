@@ -12,4 +12,8 @@ function capitalizeFirstLetter(str) {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
-export { getRandomArrayElement, getRandomPositiveInteger, capitalizeFirstLetter };
+function updateItem(items, update) {
+  return items.map((item) => item.id === update.id ? update : item);
+}
+
+export { getRandomArrayElement, getRandomPositiveInteger, capitalizeFirstLetter, updateItem };

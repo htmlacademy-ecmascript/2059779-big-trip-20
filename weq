@@ -1,0 +1,189 @@
+[33mcommit 5b90aeb9370295861fc07f2f4d1f4e44519fe0be[m[33m ([m[1;36mHEAD -> [m[1;32mmodule4-task1[m[33m)[m
+Author: Vladimir Trofimov <i_am@palant.org>
+Date:   Tue May 23 15:09:24 2023 +0300
+
+    Adds filters and header views and presenter
+
+[33mcommit f893c39842ae1efeff9e2c7386b742b2f2941e2d[m[33m ([m[1;31morigin/module4-task1[m[33m)[m
+Author: Vladimir Trofimov <i_am@palant.org>
+Date:   Mon May 22 21:02:00 2023 +0300
+
+    Modifyes favotire button listener
+
+[33mcommit 99e4367e60ccfba249570d033c5ab114cb6f8f26[m
+Author: Vladimir Trofimov <i_am@palant.org>
+Date:   Mon May 22 19:34:53 2023 +0300
+
+    Adds favorite button click listener
+
+[33mcommit b17c15d37546f71c87645ca86a8f2e0d52bede43[m
+Author: Vladimir Trofimov <i_am@palant.org>
+Date:   Mon May 22 19:12:07 2023 +0300
+
+    Adds new event button and new event font rendering
+
+[33mcommit 44d3ab588d8f50295b47813db3917dc273c432ab[m
+Author: Vladimir Trofimov <i_am@palant.org>
+Date:   Sun May 21 09:19:12 2023 +0300
+
+    Split utils module
+
+[33mcommit 24bfd1e5ee13d0ea32d382711e4e883216d3b794[m
+Author: Vladimir Trofimov <i_am@palant.org>
+Date:   Thu May 18 14:12:11 2023 +0300
+
+    Adds event listeners to edit button and add-new button
+
+[33mcommit 9e5bb609b9c7783b92c8e87ab1ffe54c81b1d52c[m
+Author: Vladimir Trofimov <i_am@palant.org>
+Date:   Wed May 17 16:34:38 2023 +0300
+
+    Adds framework and webpack loaders
+
+[33mcommit ea7280f0859d9482c354b31828b422b6e1d9bf73[m[33m ([m[1;31morigin/master[m[33m, [m[1;31morigin/HEAD[m[33m)[m
+Author: Keks <keks@htmlacademy.ru>
+Date:   Wed May 17 15:08:04 2023 +0300
+
+    :package:
+
+[33mcommit 0a0547ac39b00cb941dab2d68a986952e4a2b20f[m
+Merge: 2c7dc4f 83c2b51
+Author: Unknown Keks <keksobot@users.noreply.github.com>
+Date:   Wed May 17 15:01:37 2023 +0300
+
+    Merge pull request #4 from PalantKellad/module2-task1
+
+[33mcommit 83c2b51bff747ca80b90246ea24534e1df80996f[m[33m ([m[1;31morigin/module2-task1[m[33m, [m[1;32mmodule2-task1[m[33m)[m
+Author: Vladimir Trofimov <i_am@palant.org>
+Date:   Wed May 17 09:55:15 2023 +0300
+
+    Fixes edit event view
+
+[33mcommit 23c7b78817707f68feac8ac4520bbc33a3a282f0[m
+Author: Vladimir Trofimov <i_am@palant.org>
+Date:   Tue May 16 21:22:02 2023 +0300
+
+    Renames edit and add views
+
+[33mcommit 02ea5066f8e27a3f9c221bfdf24e3e31e77fa51a[m
+Author: Vladimir Trofimov <i_am@palant.org>
+Date:   Tue May 16 21:20:32 2023 +0300
+
+    Remakes new point view
+
+[33mcommit 8672a1f157ed8f4c880fda1f4fcdc43b176ee510[m
+Author: Vladimir Trofimov <i_am@palant.org>
+Date:   Mon May 15 16:19:04 2023 +0300
+
+    Adds mock data to views
+
+[33mcommit 2708ba30dd9ac11bce8ed64c32bb655d4d0e0fbf[m
+Author: Vladimir Trofimov <i_am@palant.org>
+Date:   Sun May 14 20:41:22 2023 +0300
+
+    Adds date generation
+
+[33mcommit 8d70f87b72d5c1cbbf9fe62a9480ab95820ff018[m
+Author: Vladimir Trofimov <i_am@palant.org>
+Date:   Fri May 12 16:02:20 2023 +0300
+
+    Adds dates function
+
+[33mcommit 27c8b02818dcaa5498b97670cff60a087bb71c70[m
+Author: Vladimir Trofimov <i_am@palant.org>
+Date:   Thu May 11 21:05:39 2023 +0300
+
+    Adds days js
+
+[33mcommit 1c300a815c9cce4248b735242f395f69bba57384[m
+Author: Vladimir Trofimov <i_am@palant.org>
+Date:   Thu May 11 16:52:41 2023 +0300
+
+    Adds constants
+
+[33mcommit 8eaae202131061e33049f5121453ff1a623a975d[m
+Author: Vladimir Trofimov <i_am@palant.org>
+Date:   Thu May 11 16:47:33 2023 +0300
+
+    Adds constants
+
+[33mcommit 2c7dc4fd1affb8f337af42fb87d1aaf1bb90b1ca[m
+Merge: 565fc77 624a8d6
+Author: Unknown Keks <keksobot@users.noreply.github.com>
+Date:   Sat Apr 29 14:17:28 2023 +0300
+
+    Merge pull request #3 from PalantKellad/module1-task3
+
+[33mcommit 624a8d678e89cd0b77c6d98d5e77db4aa18590f7[m[33m ([m[1;31morigin/module1-task3[m[33m, [m[1;32mmodule1-task3[m[33m)[m
+Author: Vladimir Trofimov <i_am@palant.org>
+Date:   Thu Apr 27 20:44:23 2023 +0300
+
+    Adds html highlight comment
+
+[33mcommit 0fb96b4c6a61dde5021136ec5ed72a73cb5f0264[m
+Author: Vladimir Trofimov <i_am@palant.org>
+Date:   Thu Apr 27 16:06:15 2023 +0300
+
+    Adds presenter
+
+[33mcommit 96f983379ec1ac55e3b90157138f0606cd799caf[m
+Author: Vladimir Trofimov <i_am@palant.org>
+Date:   Wed Apr 26 16:24:29 2023 +0300
+
+    Adds filter and sort views
+
+[33mcommit 565fc77aaad6092593c6dc98cad9c2dbce09d37a[m
+Merge: f99d62a c3e1336
+Author: Unknown Keks <keksobot@users.noreply.github.com>
+Date:   Wed Apr 26 13:44:07 2023 +0300
+
+    Merge pull request #2 from PalantKellad/module1-task2
+
+[33mcommit c3e1336dcfedde6d2418ff7ffffc48975f13015a[m[33m ([m[1;31morigin/module1-task2[m[33m)[m
+Author: Vladimir Trofimov <i_am@palant.org>
+Date:   Wed Apr 26 13:42:35 2023 +0300
+
+    Adds hash
+
+[33mcommit a32869134e6807eb7886028209dc431c2b89ea9a[m
+Author: Vladimir Trofimov <i_am@palant.org>
+Date:   Wed Apr 26 13:39:29 2023 +0300
+
+    Adds babel loader and browser list
+
+[33mcommit 961aeb478cf946a3094fa76724cac11b9fe39533[m
+Author: Vladimir Trofimov <i_am@palant.org>
+Date:   Wed Apr 26 13:37:17 2023 +0300
+
+    Adds start script
+
+[33mcommit d2df800a58a5ff41375886226b6fce1bd98f7b87[m
+Author: Vladimir Trofimov <i_am@palant.org>
+Date:   Wed Apr 26 13:35:23 2023 +0300
+
+    Adds webpack config and updates gitignore
+
+[33mcommit e701a25549e92c6c4683807963d9666ac3686995[m
+Author: Vladimir Trofimov <i_am@palant.org>
+Date:   Wed Apr 26 13:32:27 2023 +0300
+
+    Adds dependencies
+
+[33mcommit f99d62ac7a9813e361ec87b1e42bd726276542ff[m
+Merge: 9de8395 21a2a02
+Author: Unknown Keks <keksobot@users.noreply.github.com>
+Date:   Wed Apr 26 13:16:34 2023 +0300
+
+    Merge pull request #1 from PalantKellad/module1-task1
+
+[33mcommit 21a2a028136b4d311fe156c77804cb8a48d4e3ed[m[33m ([m[1;31morigin/module1-task1[m[33m)[m
+Author: Vladimir Trofimov <i_am@palant.org>
+Date:   Wed Apr 26 13:07:02 2023 +0300
+
+    Adds mentor
+
+[33mcommit 9de8395d8f87116a2a4a7b5e457d33910f57297c[m
+Author: Keks <keks@htmlacademy.ru>
+Date:   Mon Apr 24 21:33:03 2023 +0300
+
+    :hatching_chick:

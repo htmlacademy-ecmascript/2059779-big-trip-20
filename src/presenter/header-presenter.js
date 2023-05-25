@@ -1,10 +1,9 @@
 import TripInfoView from '../view/trip-info-view.js';
 import TripFiltersView from '../view/trip-filters-view';
 import { generateFilter } from '../mock/filters';
-import { render, remove, RenderPosition } from '../framework/render';
-import AddNewEventView from '../view/add-new-event-view';
+import { render } from '../framework/render';
+//import AddNewEventView from '../view/add-new-event-view';
 import AddEventButtonView from '../view/add-new-event-button-view.js';
-import TripListView from '../view/trip-list-view';
 
 export default class HeaderPresenter {
   #headerContainer = null;
@@ -14,7 +13,6 @@ export default class HeaderPresenter {
   #destinations = null;
   #offers = null;
   #totalPrice = null;
-  #listComponent = new TripListView();
 
   constructor({ headerContainer, eventsModel, offersModel, destinationsModel }) {
     this.#headerContainer = headerContainer;
@@ -26,12 +24,14 @@ export default class HeaderPresenter {
   }
 
   init() {
-    render(new TripInfoView({ events: this.#events, totalPrice: this.#totalPrice }), this.#headerContainer);
-    render(new TripFiltersView({ filters: this.#filters }), this.#headerContainer);
+    this.#renderTripInfo();
+    this.#renderFilters();
     this.#renderAddEventButton();
   }
 
   #renderAddEventButton() {
+    //Это всё сломалось и не работает, но я так понимаю, что в следующем блоке научат управлять.
+    /*
     const escKeyDownHandler = (evt) => {
       if (evt.key === 'Escape') {
         evt.preventDefault();
@@ -39,7 +39,7 @@ export default class HeaderPresenter {
         removeNewEventComponent.apply(this);
       }
     };
-    //Это всё сломалось и не работает, но я так понимаю, что в следующем блоке научат управлять.
+
     const newEventComponent = new AddNewEventView({
       event: this.#events[0],
       destinations: this.#destinations,
@@ -60,15 +60,23 @@ export default class HeaderPresenter {
 
     function removeNewEventComponent() {
       remove(newEventComponent, this.#listComponent.element, RenderPosition.AFTERBEGIN);
-    }
+    } */
 
     const addEventButtonComponent = new AddEventButtonView({
       onClick: () => {
-        renderNewEventComponent.apply(this);
-        document.addEventListener('keydown', escKeyDownHandler);
+        //renderNewEventComponent.apply(this);
+        //document.addEventListener('keydown', escKeyDownHandler);
       }
     });
 
     render(addEventButtonComponent, this.#headerContainer);
+  }
+
+  #renderTripInfo() {
+    render(new TripInfoView({ events: this.#events, totalPrice: this.#totalPrice }), this.#headerContainer);
+  }
+
+  #renderFilters() {
+    render(new TripFiltersView({ filters: this.#filters }), this.#headerContainer);
   }
 }
