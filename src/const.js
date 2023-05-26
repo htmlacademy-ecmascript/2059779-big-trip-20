@@ -47,6 +47,12 @@ const FilterType = {
   PAST: 'past',
 };
 
+const SortType = {
+  DEFAULT: 'default',
+  TIME_UP: 'time-up',
+  PRICE_UP: 'price-up',
+};
+
 const PriceRange = {
   MIN: 200,
   MAX: 9000,
@@ -54,4 +60,13 @@ const PriceRange = {
 
 const MOCKS_COUNT = 6;
 
-export { OFFER_TYPES, DESTINATIONS, OFFERS, DESTINATIONS_DESCRIPTIONS, FilterType, PriceRange, MOCKS_COUNT };
+export {
+  OFFER_TYPES,
+  DESTINATIONS,
+  OFFERS,
+  DESTINATIONS_DESCRIPTIONS,
+  FilterType,
+  PriceRange,
+  MOCKS_COUNT,
+  SortType
+};

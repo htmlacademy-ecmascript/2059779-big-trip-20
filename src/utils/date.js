@@ -46,4 +46,9 @@ function getDateDiff(date1, date2) {
   return result;
 }
 
-export { getRandomPositiveInteger, getEventDates, formatDate, getDateDiff };
+export {
+  getRandomPositiveInteger,
+  getEventDates,
+  formatDate,
+  getDateDiff
+};
