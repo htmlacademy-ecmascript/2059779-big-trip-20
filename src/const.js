@@ -49,8 +49,8 @@ const FilterType = {
 
 const SortType = {
   DEFAULT: 'default',
-  TIME_UP: 'time-up',
-  PRICE_UP: 'price-up',
+  TIME_DOWN: 'time-down',
+  PRICE_DOWN: 'price-down',
 };
 
 const PriceRange = {

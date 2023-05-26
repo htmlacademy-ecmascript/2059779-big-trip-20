@@ -30,7 +30,7 @@ function formatDate(date, format) {
   return dayjs(date).format(format);
 }
 
-function getDateDiff(date1, date2) {
+function getFormattedDateDiff(date1, date2) {
   const diff = dayjs.duration(dayjs(date1).diff(dayjs(date2)));
   const days = diff.days();
   const hours = diff.hours();
@@ -46,9 +46,14 @@ function getDateDiff(date1, date2) {
   return result;
 }
 
+function getDateDiff(date1, date2) {
+  return dayjs.duration(dayjs(date1).diff(dayjs(date2)));
+}
+
 export {
   getRandomPositiveInteger,
   getEventDates,
   formatDate,
+  getFormattedDateDiff,
   getDateDiff
 };

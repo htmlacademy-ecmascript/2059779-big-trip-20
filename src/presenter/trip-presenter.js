@@ -4,6 +4,8 @@ import EmptyListView from '../view/empty-list-view.js';
 import EventPresenter from './event-presenter.js';
 import EventListView from '../view/event-list-view.js';
 import { updateItem } from '../utils/common.js';
+import { SortType } from '../const.js';
+import { compareEventPrice, compareEventDuration } from '../utils/sort.js';
 
 export default class TripPresenter {
   #listContainer = null;
@@ -12,9 +14,12 @@ export default class TripPresenter {
   #destinations = null;
   #offers = null;
 
-  #sortComponent = new TripSortView();
+  #sortComponent = null;
   #emptyListComponent = new EmptyListView();
   #listComponent = new EventListView();
+
+  #currentSortType = SortType.DEFAULT;
+  #initialEvents = [];
 
   #eventPresenters = new Map();
 
@@ -26,6 +31,8 @@ export default class TripPresenter {
   }
 
   init() {
+    this.#initialEvents = [...this.#events];
+    this.#renderSort();
     this.#renderTrip();
   }
 
@@ -33,7 +40,6 @@ export default class TripPresenter {
     if (this.#events.length === 0) {
       this.#renderEmptyList();
     } else {
-      this.#renderSort();
       this.#renderList();
       this.#events.forEach((event) => {
         this.#renderEvent(event);
@@ -43,10 +49,15 @@ export default class TripPresenter {
 
   #handleEventUpdate = (updatedEvent) => {
     this.#events = updateItem(this.#events, updatedEvent);
+    this.#initialEvents = updateItem(this.#initialEvents, updatedEvent);
     this.#eventPresenters.get(updatedEvent.id).init(updatedEvent);
   };
 
   #renderSort() {
+    this.#sortComponent = new TripSortView({
+      onSortTypeChange: this.#handleSortTypeChange
+    });
+
     render(this.#sortComponent, this.#listContainer);
   }
 
@@ -78,5 +89,30 @@ export default class TripPresenter {
 
   #handleModeChange = () => {
     this.#eventPresenters.forEach((presenter) => presenter.resetView());
+  };
+
+  #sortEvents(sortType) {
+    switch (sortType) {
+      case SortType.TIME_DOWN:
+        this.#events.sort(compareEventDuration);
+        break;
+      case SortType.PRICE_DOWN:
+        this.#events.sort(compareEventPrice);
+        break;
+      default:
+        this.#events = [...this.#initialEvents];
+    }
+
+    this.#currentSortType = sortType;
+  }
+
+  #handleSortTypeChange = (sortType) => {
+    if (this.#currentSortType === sortType) {
+      return;
+    }
+
+    this.#sortEvents(sortType);
+    this.#clearEventList();
+    this.#renderTrip();
   };
 }
