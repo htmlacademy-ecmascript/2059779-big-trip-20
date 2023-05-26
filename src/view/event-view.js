@@ -1,6 +1,6 @@
 import AbstractView from '../framework/view/abstract-view.js';
 import { capitalizeFirstLetter } from '../utils/common.js';
-import { formatDate, getDateDiff } from '../utils/date.js';
+import { formatDate, getFormattedDateDiff } from '../utils/date.js';
 
 function createEventViewOffersList(offers) {
   const offersList = offers.length === 0 ? '' :
@@ -24,7 +24,7 @@ function createEventViewTemplate(event) {
   const favoriteClassName = isFavorite
     ? 'event__favorite-btn event__favorite-btn--active'
     : 'event__favorite-btn';
-  const eventDuration = getDateDiff(dateTo, dateFrom);
+  const eventDuration = getFormattedDateDiff(dateTo, dateFrom);
 
   return (/*html*/
     `<li class="trip-events__item">

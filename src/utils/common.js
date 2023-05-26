@@ -16,4 +16,9 @@ function updateItem(items, update) {
   return items.map((item) => item.id === update.id ? update : item);
 }
 
-export { getRandomArrayElement, getRandomPositiveInteger, capitalizeFirstLetter, updateItem };
+export {
+  getRandomArrayElement,
+  getRandomPositiveInteger,
+  capitalizeFirstLetter,
+  updateItem
+};
