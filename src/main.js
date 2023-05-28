@@ -9,9 +9,9 @@ const siteHeaderWrapper = document.querySelector('.trip-main');
 const eventsListWrapper = document.querySelector('.trip-events');
 
 const mockService = new MockService();
-const destinationsModel = new DestinationsModel(mockService);
 const offersModel = new OffersModel(mockService);
 const eventsModel = new EventsModel(mockService);
+const destinationsModel = new DestinationsModel(mockService);
 
 const headerPresenter = new HeaderPresenter({
   headerContainer: siteHeaderWrapper,

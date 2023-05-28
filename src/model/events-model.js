@@ -11,7 +11,6 @@ export default class EventsModel {
     return this.#events;
   }
 
-  //Не уверен, что это оптимальный проход по вложенному массиву.
   getTotalPrice() {
     return this.#events.reduce((totalPrice, event) => {
       totalPrice += event.basePrice;
@@ -22,5 +21,10 @@ export default class EventsModel {
 
       return totalPrice;
     }, 0);
+  }
+
+  getTripDates() {
+    const startDate = this.#events[0].dateFrom;
+    const finishDate = this.#events[this.#events.length - 1].dateTo;
   }
 }

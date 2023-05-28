@@ -1,8 +1,9 @@
-import { render } from '../framework/render.js';
+import { render, remove, RenderPosition } from '../framework/render.js';
 import TripSortView from '../view/trip-sort-view';
 import EmptyListView from '../view/empty-list-view.js';
 import EventPresenter from './event-presenter.js';
 import EventListView from '../view/event-list-view.js';
+import AddNewEventView from '../view/add-new-event-view';
 import { updateItem } from '../utils/common.js';
 import { SortType } from '../const.js';
 import { compareEventPrice, compareEventDuration } from '../utils/sort.js';
@@ -115,4 +116,30 @@ export default class TripPresenter {
     this.#clearEventList();
     this.#renderTrip();
   };
+
+  #renderNewEventForm() {
+    const newEventComponent = new AddNewEventView({
+      event: this.#events[0],
+      destinations: this.#destinations,
+      options: this.#offers,
+      onFormSubmit: () => {
+        removeNewEventComponent.apply(this);
+        document.removeEventListener('keydown', escKeyDownHandler);
+      },
+      onCancelClick: () => {
+        document.removeEventListener('keydown', escKeyDownHandler);
+        removeNewEventComponent.apply(this);
+      },
+    });
+
+    function renderNewEventComponent() {
+      render(newEventComponent, this.#listComponent.element, RenderPosition.AFTERBEGIN);
+    }
+
+    function removeNewEventComponent() {
+      remove(newEventComponent, this.#listComponent.element, RenderPosition.AFTERBEGIN);
+    }
+
+    render(newEventComponent, this.#listComponent.element, RenderPosition.AFTERBEGIN);
+  }
 }
