@@ -24,7 +24,22 @@ export default class EventsModel {
   }
 
   getTripDates() {
-    const startDate = this.#events[0].dateFrom;
-    const finishDate = this.#events[this.#events.length - 1].dateTo;
+    let startDate = '';
+    let finishDate = '';
+    switch (this.#events.length) {
+      case 0:
+        break;
+      case 1:
+        startDate = this.#events[0].dateFrom;
+        break;
+      default:
+        startDate = this.#events[0].dateFrom;
+        finishDate = this.#events[this.#events.length - 1].dateTo;
+        break;
+    }
+    return {
+      startDate,
+      finishDate
+    };
   }
 }

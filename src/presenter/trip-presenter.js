@@ -1,15 +1,17 @@
-import { render, remove, RenderPosition } from '../framework/render.js';
+import { render } from '../framework/render.js';
 import TripSortView from '../view/trip-sort-view';
 import EmptyListView from '../view/empty-list-view.js';
 import EventPresenter from './event-presenter.js';
+import HeaderPresenter from './header-presenter.js';
 import EventListView from '../view/event-list-view.js';
-import AddNewEventView from '../view/add-new-event-view';
 import { updateItem } from '../utils/common.js';
 import { SortType } from '../const.js';
 import { compareEventPrice, compareEventDuration } from '../utils/sort.js';
 
 export default class TripPresenter {
   #listContainer = null;
+  #headerContainer = null;
+  #eventsModel = null;
 
   #events = null;
   #destinations = null;
@@ -24,15 +26,18 @@ export default class TripPresenter {
 
   #eventPresenters = new Map();
 
-  constructor({ listContainer, destinationsModel, offersModel, eventsModel }) {
+  constructor({ listContainer, headerContainer, destinationsModel, offersModel, eventsModel }) {
     this.#listContainer = listContainer;
+    this.#headerContainer = headerContainer;
     this.#events = [...eventsModel.events];
+    this.#eventsModel = eventsModel;
     this.#destinations = [...destinationsModel.destinations];
     this.#offers = [...offersModel.offers];
   }
 
   init() {
-    this.#initialEvents = [...this.#events];
+    this.#initialEvents = [...this.#eventsModel.events];
+    this.#renderTripInfo();
     this.#renderSort();
     this.#renderTrip();
   }
@@ -48,11 +53,37 @@ export default class TripPresenter {
     }
   }
 
-  #handleEventUpdate = (updatedEvent) => {
-    this.#events = updateItem(this.#events, updatedEvent);
-    this.#initialEvents = updateItem(this.#initialEvents, updatedEvent);
-    this.#eventPresenters.get(updatedEvent.id).init(updatedEvent);
-  };
+  #renderTripInfo() {
+    const getTripTitle = () => {
+      let tripTitle = 'Маршрут не составлен';
+      switch (this.#eventsModel.events.length) {
+        case 0:
+          break;
+        case 1:
+          tripTitle = `${this.#eventsModel.events[0].destination} — Добавьте конечную точку`;
+          break;
+        case 2:
+          tripTitle = `${this.#eventsModel.events[0].destination} — ${this.#eventsModel.events[1].destination}`;
+          break;
+        case 3:
+          tripTitle = `${this.#eventsModel.events[0].destination} — ${this.#eventsModel.events[2].destination} — ${this.#events[3].destination}`;
+          break;
+        default:
+          tripTitle = `${this.#eventsModel.events[0].destination} — … — ${this.#eventsModel.events[this.#events.length - 1].destination}`;
+      }
+      return tripTitle;
+    };
+
+    const headerPresenter = new HeaderPresenter({
+      headerContainer: this.#headerContainer,
+      tripTitle: getTripTitle(),
+      tripDates: this.#eventsModel.getTripDates(),
+      tripPrice: this.#eventsModel.getTotalPrice(),
+      events: this.#eventsModel.events,
+    });
+
+    headerPresenter.init();
+  }
 
   #renderSort() {
     this.#sortComponent = new TripSortView({
@@ -88,10 +119,6 @@ export default class TripPresenter {
     this.#eventPresenters.clear();
   }
 
-  #handleModeChange = () => {
-    this.#eventPresenters.forEach((presenter) => presenter.resetView());
-  };
-
   #sortEvents(sortType) {
     switch (sortType) {
       case SortType.TIME_DOWN:
@@ -107,6 +134,16 @@ export default class TripPresenter {
     this.#currentSortType = sortType;
   }
 
+  #handleModeChange = () => {
+    this.#eventPresenters.forEach((presenter) => presenter.resetView());
+  };
+
+  #handleEventUpdate = (updatedEvent) => {
+    this.#events = updateItem(this.#events, updatedEvent);
+    this.#initialEvents = updateItem(this.#initialEvents, updatedEvent);
+    this.#eventPresenters.get(updatedEvent.id).init(updatedEvent);
+  };
+
   #handleSortTypeChange = (sortType) => {
     if (this.#currentSortType === sortType) {
       return;
@@ -116,30 +153,4 @@ export default class TripPresenter {
     this.#clearEventList();
     this.#renderTrip();
   };
-
-  #renderNewEventForm() {
-    const newEventComponent = new AddNewEventView({
-      event: this.#events[0],
-      destinations: this.#destinations,
-      options: this.#offers,
-      onFormSubmit: () => {
-        removeNewEventComponent.apply(this);
-        document.removeEventListener('keydown', escKeyDownHandler);
-      },
-      onCancelClick: () => {
-        document.removeEventListener('keydown', escKeyDownHandler);
-        removeNewEventComponent.apply(this);
-      },
-    });
-
-    function renderNewEventComponent() {
-      render(newEventComponent, this.#listComponent.element, RenderPosition.AFTERBEGIN);
-    }
-
-    function removeNewEventComponent() {
-      remove(newEventComponent, this.#listComponent.element, RenderPosition.AFTERBEGIN);
-    }
-
-    render(newEventComponent, this.#listComponent.element, RenderPosition.AFTERBEGIN);
-  }
 }

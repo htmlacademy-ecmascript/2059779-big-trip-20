@@ -7,15 +7,18 @@ import AddEventButtonView from '../view/add-new-event-button-view.js';
 export default class HeaderPresenter {
   #headerContainer = null;
   #filters = [];
+  #events = [];
 
-  #events = null;
-  #totalPrice = null;
+  #tripTitle = null;
+  #tripDates = null;
+  #tripPrice = null;
 
-  constructor({ headerContainer, eventsModel }) {
+  constructor({ headerContainer, tripTitle, tripDates, tripPrice, events }) {
     this.#headerContainer = headerContainer;
-    this.#events = [...eventsModel.events];
-    this.#filters = generateFilter(this.#events);
-    this.#totalPrice = eventsModel.getTotalPrice();
+    this.#events = events;
+    this.#tripTitle = tripTitle;
+    this.#tripDates = tripDates;
+    this.#tripPrice = tripPrice;
   }
 
   init() {
@@ -25,12 +28,7 @@ export default class HeaderPresenter {
   }
 
   #renderAddEventButton() {
-    const addEventButtonComponent = new AddEventButtonView({
-      onClick: () => {
-        //renderNewEventComponent.apply(this);
-        //document.addEventListener('keydown', escKeyDownHandler);
-      }
-    });
+    const addEventButtonComponent = new AddEventButtonView();
 
     render(addEventButtonComponent, this.#headerContainer);
   }
@@ -38,12 +36,14 @@ export default class HeaderPresenter {
   #renderTripInfo() {
     render(new TripInfoView({
       events: this.#events,
-      totalPrice: this.#totalPrice,
-      tripTitle: this.#getTripTitle(),
+      tripTitle: this.#tripTitle,
+      tripDates: this.#tripDates,
+      totalPrice: this.#tripPrice,
     }), this.#headerContainer);
   }
 
   #renderFilters() {
+    this.#filters = generateFilter(this.#events);
     render(new TripFiltersView({ filters: this.#filters }), this.#headerContainer);
   }
 
@@ -67,9 +67,5 @@ export default class HeaderPresenter {
         tripTitle = `${this.#events[0].destination} — … — ${this.#events[this.#events.length - 1].destination}`;
     }
     return tripTitle;
-  }
-
-  #getTripDates() {
-
   }
 }
