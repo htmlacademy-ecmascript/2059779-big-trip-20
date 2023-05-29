@@ -1,5 +1,5 @@
 import { OFFER_TYPES } from '../const.js';
-import AbstractView from '../framework/view/abstract-view.js';
+import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 import { capitalizeFirstLetter } from '../utils/common.js';
 import { formatDate } from '../utils/date.js';
 
@@ -104,7 +104,7 @@ function createEditEventTemplate({destination, type, offers, dateFrom, dateTo, b
       </li>`);
 }
 
-export default class EditEventView extends AbstractView {
+export default class EditEventView extends AbstractStatefulView {
   #event = null;
   #destinations = null;
   #options = null;

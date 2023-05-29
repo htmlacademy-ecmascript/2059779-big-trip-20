@@ -46,26 +46,4 @@ export default class HeaderPresenter {
     this.#filters = generateFilter(this.#events);
     render(new TripFiltersView({ filters: this.#filters }), this.#headerContainer);
   }
-
-  //Здесь не уверен, стоит ли создавать сразу строки, или передать в какую-то структуру, которую уже будет разбирать View.
-  //И, насколько я могу судить, это временное решение, которое нельзя передать в модель, потому что потом в объекте события будет приходить не имя пункта назначения, как у меня в моках сейчас, а id. И нужны данных из двух моделей, чтобы одно соединить с другим.
-  #getTripTitle() {
-    let tripTitle = 'Маршрут не составлен';
-    switch (this.#events.length) {
-      case 0:
-        break;
-      case 1:
-        tripTitle = `${this.#events[0].destination} — Добавьте конечную точку`;
-        break;
-      case 2:
-        tripTitle = `${this.#events[0].destination} — ${this.#events[1].destination}`;
-        break;
-      case 3:
-        tripTitle = `${this.#events[0].destination} — ${this.#events[2].destination} — ${this.#events[3].destination}`;
-        break;
-      default:
-        tripTitle = `${this.#events[0].destination} — … — ${this.#events[this.#events.length - 1].destination}`;
-    }
-    return tripTitle;
-  }
 }
