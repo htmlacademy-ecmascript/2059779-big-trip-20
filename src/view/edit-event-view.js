@@ -156,7 +156,7 @@ export default class EditEventView extends AbstractStatefulView {
 
   #formSubmitHandler = (evt) => {
     evt.preventDefault();
-    this.#handleFormSubmit(this.#event);
+    this.#handleFormSubmit(EditEventView.parseStateToEvent(this._state));
   };
 
   #toggleClickHandler = (evt) => {
@@ -180,6 +180,30 @@ export default class EditEventView extends AbstractStatefulView {
     });
   };
 
+  #optionClickHandler = (evt) => {
+    evt.preventDefault();
+    const selectedOptions = Array.from(this.element.querySelectorAll('.event__offer-checkbox:checked'));
+
+    this._setState({
+      event: {
+        ...this._state.event,
+        //Здесь у меня получается откровенная ерунда. В текущем исполнении у меня в event массив offers содержит не id, а сразу офферы. А здесь идёт перезапись на id. Думаю, как привести исполнение к соответствующему интерфейсу.
+        offers: selectedOptions.map((option) => option.value)
+      }
+    });
+  };
+
+  #priceChangeHandler = (evt) => {
+    evt.preventDefault();
+
+    this._setState({
+      event: {
+        ...this._state.event,
+        basePrice: evt.target.value,
+      }
+    });
+  };
+
   _restoreHandlers = () => {
     this.element
       .querySelector('form')
@@ -196,6 +220,17 @@ export default class EditEventView extends AbstractStatefulView {
     this.element
       .querySelector('.event__type-group')
       .addEventListener('change', this.#typeFieldsetChangeHandler);
+
+    this.element
+      .querySelector('.event__input--price')
+      .addEventListener('input', this.#priceChangeHandler);
+
+    const optionsContainer = this.element.querySelector('.event__available-offers');
+
+    if (optionsContainer) {
+      optionsContainer.addEventListener('change', this.#optionClickHandler);
+    }
+
   };
 
   get template() {
@@ -204,5 +239,11 @@ export default class EditEventView extends AbstractStatefulView {
       destinations: this.#destinations,
       options: this.#options
     });
+  }
+
+  reset(event) {
+    this.updateElement(
+      EditEventView.parseEventToState(event)
+    );
   }
 }

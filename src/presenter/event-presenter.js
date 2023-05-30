@@ -76,6 +76,7 @@ export default class EventPresenter {
 
   resetView() {
     if (this.#mode !== Mode.DEFAULT) {
+      this.#editEventComponent.reset(this.#event);
       this.#replaceFormToItem();
     }
   }
