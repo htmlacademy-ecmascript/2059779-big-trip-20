@@ -65,6 +65,7 @@ export default class TripSortView extends AbstractView {
       return;
     }
 
+    //Не понятно, нужно здесь дефолт отменять, или нет. Если отменить, нужно заново прописывать логику навешивания атрибута checked. А от него и стили падают. Это минус. А в чём плюс отмены дефолтного поведения в данном случае я не понимаю.
     //evt.preventDefault();
     this.#handleSortTypeChange(evt.target.dataset.sortType);
   };

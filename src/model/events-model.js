@@ -11,16 +11,32 @@ export default class EventsModel {
     return this.#events;
   }
 
-  //Не уверен, что это оптимальный проход по вложенному массиву.
   getTotalPrice() {
+    //Убрал учёт дополнительных опций. Пока не знаю, как его сделать, и нужно ли по ТЗ вообще.
     return this.#events.reduce((totalPrice, event) => {
       totalPrice += event.basePrice;
 
-      event.offers.forEach((offer) => {
-        totalPrice += offer.price;
-      });
-
       return totalPrice;
     }, 0);
+  }
+
+  getTripDates() {
+    let startDate = '';
+    let finishDate = '';
+    switch (this.#events.length) {
+      case 0:
+        break;
+      case 1:
+        startDate = this.#events[0].dateFrom;
+        break;
+      default:
+        startDate = this.#events[0].dateFrom;
+        finishDate = this.#events[this.#events.length - 1].dateTo;
+        break;
+    }
+    return {
+      startDate,
+      finishDate
+    };
   }
 }

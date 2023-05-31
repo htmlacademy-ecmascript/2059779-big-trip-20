@@ -2,6 +2,7 @@ import { render } from '../framework/render.js';
 import TripSortView from '../view/trip-sort-view';
 import EmptyListView from '../view/empty-list-view.js';
 import EventPresenter from './event-presenter.js';
+import HeaderPresenter from './header-presenter.js';
 import EventListView from '../view/event-list-view.js';
 import { updateItem } from '../utils/common.js';
 import { SortType } from '../const.js';
@@ -9,6 +10,8 @@ import { compareEventPrice, compareEventDuration } from '../utils/sort.js';
 
 export default class TripPresenter {
   #listContainer = null;
+  #headerContainer = null;
+  #eventsModel = null;
 
   #events = null;
   #destinations = null;
@@ -23,15 +26,18 @@ export default class TripPresenter {
 
   #eventPresenters = new Map();
 
-  constructor({ listContainer, destinationsModel, offersModel, eventsModel }) {
+  constructor({ listContainer, headerContainer, destinationsModel, offersModel, eventsModel }) {
     this.#listContainer = listContainer;
+    this.#headerContainer = headerContainer;
     this.#events = [...eventsModel.events];
+    this.#eventsModel = eventsModel;
     this.#destinations = [...destinationsModel.destinations];
     this.#offers = [...offersModel.offers];
   }
 
   init() {
-    this.#initialEvents = [...this.#events];
+    this.#initialEvents = [...this.#eventsModel.events];
+    this.#renderTripInfo();
     this.#renderSort();
     this.#renderTrip();
   }
@@ -47,11 +53,53 @@ export default class TripPresenter {
     }
   }
 
-  #handleEventUpdate = (updatedEvent) => {
-    this.#events = updateItem(this.#events, updatedEvent);
-    this.#initialEvents = updateItem(this.#initialEvents, updatedEvent);
-    this.#eventPresenters.get(updatedEvent.id).init(updatedEvent);
-  };
+  #renderTripInfo() {
+    //Каша какая-то, но ничего более приятного и читаемого я не придумал.
+    const getTripTitle = () => {
+      let firstDestinationTitle = 'Задайте первую точку маршрута.';
+      let middleDestinationTitle = 'Задайте вторую точку маршрута.';
+      let endDestinationTitle = '';
+      let tripTitle = 'Маршрут не составлен.';
+      switch (this.#eventsModel.events.length) {
+        case 0:
+          break;
+        case 1:
+          firstDestinationTitle = this.#destinations.find((point) => point.id === this.#eventsModel.events[0].destination).name;
+
+          tripTitle = `${firstDestinationTitle} — Добавьте конечную точку`;
+          break;
+        case 2:
+          firstDestinationTitle = this.#destinations.find((point) => point.id === this.#eventsModel.events[0].destination).name;
+          middleDestinationTitle = this.#destinations.find((point) => point.id === this.#eventsModel.events[1].destination).name;
+
+          tripTitle = `${firstDestinationTitle} — ${middleDestinationTitle}`;
+          break;
+        case 3:
+          firstDestinationTitle = this.#destinations.find((point) => point.id === this.#eventsModel.events[0].destination).name;
+          middleDestinationTitle = this.#destinations.find((point) => point.id === this.#eventsModel.events[1].destination).name;
+          endDestinationTitle = this.#destinations.find((point) => point.id === this.#eventsModel.events[2].destination).name;
+
+          tripTitle = `${firstDestinationTitle} — ${middleDestinationTitle} — ${endDestinationTitle}`;
+          break;
+        default:
+          firstDestinationTitle = this.#destinations.find((point) => point.id === this.#eventsModel.events[0].destination).name;
+          endDestinationTitle = this.#destinations.find((point) => point.id === this.#eventsModel.events[this.#events.length - 1].destination).name;
+
+          tripTitle = `${firstDestinationTitle} — … — ${endDestinationTitle}`;
+      }
+      return tripTitle;
+    };
+
+    const headerPresenter = new HeaderPresenter({
+      headerContainer: this.#headerContainer,
+      tripTitle: getTripTitle(),
+      tripDates: this.#eventsModel.getTripDates(),
+      tripPrice: this.#eventsModel.getTotalPrice(),
+      events: this.#eventsModel.events,
+    });
+
+    headerPresenter.init();
+  }
 
   #renderSort() {
     this.#sortComponent = new TripSortView({
@@ -87,10 +135,6 @@ export default class TripPresenter {
     this.#eventPresenters.clear();
   }
 
-  #handleModeChange = () => {
-    this.#eventPresenters.forEach((presenter) => presenter.resetView());
-  };
-
   #sortEvents(sortType) {
     switch (sortType) {
       case SortType.TIME_DOWN:
@@ -105,6 +149,16 @@ export default class TripPresenter {
 
     this.#currentSortType = sortType;
   }
+
+  #handleModeChange = () => {
+    this.#eventPresenters.forEach((presenter) => presenter.resetView());
+  };
+
+  #handleEventUpdate = (updatedEvent) => {
+    this.#events = updateItem(this.#events, updatedEvent);
+    this.#initialEvents = updateItem(this.#initialEvents, updatedEvent);
+    this.#eventPresenters.get(updatedEvent.id).init(updatedEvent);
+  };
 
   #handleSortTypeChange = (sortType) => {
     if (this.#currentSortType === sortType) {

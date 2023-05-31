@@ -1,7 +1,7 @@
 import { getDateDiff } from './date';
 
 function compareEventPrice(eventA, eventB) {
-  return eventA.basePrice - eventB.basePrice;
+  return eventB.basePrice - eventA.basePrice;
 }
 
 function compareEventDuration(eventA, eventB) {

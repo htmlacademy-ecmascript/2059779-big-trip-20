@@ -22,6 +22,7 @@ export default class EventPresenter {
   #handleModeChange = null;
 
   constructor({ listComponent, destinations, options, onDataUpdate, onModeChange }) {
+
     this.#listComponent = listComponent;
     this.#destinations = destinations;
     this.#options = options;
@@ -37,6 +38,8 @@ export default class EventPresenter {
 
     this.#eventComponent = new EventView({
       event: this.#event,
+      destinations: this.#destinations,
+      options: this.#options,
       onEditClick: this.#handleToggleOpen,
       onFavoriteClick: this.#handleFavoriteClick,
     });
@@ -76,6 +79,7 @@ export default class EventPresenter {
 
   resetView() {
     if (this.#mode !== Mode.DEFAULT) {
+      this.#editEventComponent.reset(this.#event);
       this.#replaceFormToItem();
     }
   }
@@ -93,6 +97,7 @@ export default class EventPresenter {
     this.#mode = Mode.DEFAULT;
   }
 
+  //При закрытии ECS'ом состояние не скидывается
   #removeForm() {
     remove(this.#editEventComponent);
     document.removeEventListener('keydown', this.#escKeyDownHandler);

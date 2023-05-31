@@ -2,15 +2,12 @@ import AbstractView from '../framework/view/abstract-view.js';
 import { formatDate } from '../utils/date.js';
 
 //Здесь нужна будет новая функция форматирования или их комбинация, чтобы не дублировать месяц, если месяц старта и месяц окончания совпадают
-function createTripInfoTemplate(events, totalPrice) {
-  const startEvent = events[0];
-  const endEvent = events[events.length - 1];
-  const middleEvent = (events.length > 3) ? '...' : events[1].destination;
+function createTripInfoTemplate(tripTitle, tripDates, totalPrice) {
   return (/*html*/
     `<section class="trip-main__trip-info  trip-info">
         <div class="trip-info__main">
-          <h1 class="trip-info__title">${startEvent.destination} &mdash; ${middleEvent} &mdash; ${endEvent.destination}</h1>
-          <p class="trip-info__dates">${formatDate(startEvent.dateFrom, 'MMM DD')}&nbsp;&mdash;&nbsp;${formatDate(endEvent.dateTo, 'MMM DD')}</p>
+          <h1 class="trip-info__title">${tripTitle}</h1>
+          <p class="trip-info__dates">${formatDate(tripDates.startDate, 'MMM DD')}&nbsp;&mdash;&nbsp;${formatDate(tripDates.finishDate, 'MMM DD')}</p>
         </div>
         <p class="trip-info__cost">
           Total: &euro;&nbsp;<span class="trip-info__cost-value">${totalPrice}</span>
@@ -19,16 +16,18 @@ function createTripInfoTemplate(events, totalPrice) {
 }
 
 export default class TripInfoView extends AbstractView {
-  #events = null;
+  #tripTitle = null;
+  #tripDates = null;
   #totalPrice = null;
 
-  constructor({ events, totalPrice }) {
+  constructor({ tripTitle, tripDates, totalPrice }) {
     super();
-    this.#events = events;
+    this.#tripTitle = tripTitle;
+    this.#tripDates = tripDates;
     this.#totalPrice = totalPrice;
   }
 
   get template() {
-    return createTripInfoTemplate(this.#events, this.#totalPrice);
+    return createTripInfoTemplate(this.#tripTitle, this.#tripDates, this.#totalPrice);
   }
 }
