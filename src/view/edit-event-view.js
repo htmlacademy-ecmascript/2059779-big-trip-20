@@ -40,17 +40,18 @@ function createDestinationPhotos(pictures) {
 }
 
 function createEventOffersList(options, selectedOptions) {
+  //Тут прямо и неизящно генерируются id и for у input и label. По идее нужно собрать словарь из всех значений в разметке или придумать его, но мне что-то лень, и в данном случае я не вижу практической пользы.
   const offersList = options.length === 0 ? '' :
     options.map((option) => (/*html*/
       `<div class="event__offer-selector">
       <input
         class="event__offer-checkbox  visually-hidden"
-        id="event-offer-luggage-1"
+        id="${option.id}"
         type="checkbox"
         name="event-offer-luggage"
         value="${option.id}"
-        ${selectedOptions.some((selectedOption) => selectedOption.id === option.id) ? 'checked' : ''}>
-        <label class="event__offer-label" for="event-offer-luggage-1">
+        ${selectedOptions.some((selectedOption) => selectedOption === option.id) ? 'checked' : ''}>
+        <label class="event__offer-label" for="${option.id}">
           <span class="event__offer-title">${option.title}</span>
           &plus;&euro;&nbsp;
           <span class="event__offer-price">${option.price}</span>
@@ -188,7 +189,6 @@ export default class EditEventView extends AbstractStatefulView {
     this._setState({
       event: {
         ...this._state.event,
-        //Здесь у меня получается откровенная ерунда. В текущем исполнении у меня в event массив offers содержит не id, а сразу офферы. А здесь идёт перезапись на id. Думаю, как привести исполнение к соответствующему интерфейсу.
         offers: selectedOptions.map((option) => option.value)
       }
     });
@@ -201,6 +201,18 @@ export default class EditEventView extends AbstractStatefulView {
       event: {
         ...this._state.event,
         basePrice: evt.target.value,
+      }
+    });
+  };
+
+  #destinationChangeHandler = () => {
+    const selectedDestination = this.element.querySelector('.event__input--destination').value;
+    const selectedDestinationId = this.#destinations.find((destination) => destination.name === selectedDestination).id;
+
+    this._setState({
+      event: {
+        ...this._state.event,
+        destination: selectedDestinationId,
       }
     });
   };
@@ -226,6 +238,11 @@ export default class EditEventView extends AbstractStatefulView {
       .querySelector('.event__input--price')
       .addEventListener('input', this.#priceChangeHandler);
 
+    //Перерисовывается, но только после нажатия Save или Enter. Не могу придумать, как по-другому.
+    this.element
+      .querySelector('.event__input--destination')
+      .addEventListener('change', this.#destinationChangeHandler);
+
     const optionsContainer = this.element.querySelector('.event__available-offers');
 
     if (optionsContainer) {
@@ -243,8 +260,7 @@ export default class EditEventView extends AbstractStatefulView {
   }
 
   reset(event) {
-    this.updateElement(
-      EditEventView.parseEventToState(event)
-    );
+    //Здесь в демо проекте ParseToState. Но если его оставить, то при удалении ивента и раскрытии следующего выпадает ошибка. Поправил так, как было показано в ретро. Если честно, я уже запутался и не могу на данном этапе понять, что происходит и почему была ошибка.
+    this.updateElement({ event });
   }
 }

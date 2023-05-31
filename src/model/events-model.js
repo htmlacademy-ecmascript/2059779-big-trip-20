@@ -12,12 +12,9 @@ export default class EventsModel {
   }
 
   getTotalPrice() {
+    //Убрал учёт дополнительных опций. Пока не знаю, как его сделать, и нужно ли по ТЗ вообще.
     return this.#events.reduce((totalPrice, event) => {
       totalPrice += event.basePrice;
-
-      event.offers.forEach((offer) => {
-        totalPrice += offer.price;
-      });
 
       return totalPrice;
     }, 0);

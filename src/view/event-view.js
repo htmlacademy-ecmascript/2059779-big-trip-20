@@ -13,9 +13,10 @@ function createEventViewOffersList(offers) {
   return `<ul class="event__selected-offers">${offersList}</ul>`;
 }
 
-function createEventViewTemplate(event, destinations) {
-  const { basePrice, destination, dateFrom, dateTo, type, isFavorite, offers } = event;
+function createEventViewTemplate(event, destinations, options) {
+  const { basePrice, destination, dateFrom, dateTo, type, isFavorite } = event;
   const destinationTitle = destinations.find((point) => point.id === destination).name;
+  const selectedOptions = options.find((option) => option.type === event.type).offers.filter((offer) => event.offers.includes(offer.id));
   const dayDateTimeAttribute = formatDate(dateFrom, 'YYYY-MM-DD');
   const dateFromDateTimeAttribute = formatDate(dateFrom, 'YYYY-MM-DD');
   const dateToDateTimeAttribute = formatDate(dateTo, 'YYYY-MM-DD');
@@ -47,7 +48,7 @@ function createEventViewTemplate(event, destinations) {
             &euro;&nbsp;<span class="event__price-value">${basePrice}</span>
           </p>
           <h4 class="visually-hidden">Offers:</h4>
-            ${createEventViewOffersList(offers)}
+            ${createEventViewOffersList(selectedOptions)}
           <button class="${favoriteClassName}" type="button">
             <span class="visually-hidden">Add to favorite</span>
             <svg class="event__favorite-icon" width="28" height="28" viewBox="0 0 28 28">
@@ -64,13 +65,15 @@ function createEventViewTemplate(event, destinations) {
 export default class EventView extends AbstractView {
   #event = null;
   #destinations = null;
+  #options = null;
   #handleEditClick = null;
   #handleFavoriteClick = null;
 
-  constructor({ event, destinations, onEditClick, onFavoriteClick }) {
+  constructor({ event, destinations, options, onEditClick, onFavoriteClick }) {
     super();
     this.#event = event;
     this.#destinations = destinations;
+    this.#options = options;
     this.#handleEditClick = onEditClick;
     this.#handleFavoriteClick = onFavoriteClick;
 
@@ -80,7 +83,7 @@ export default class EventView extends AbstractView {
   }
 
   get template() {
-    return createEventViewTemplate(this.#event, this.#destinations);
+    return createEventViewTemplate(this.#event, this.#destinations, this.#options);
   }
 
   #editClickHandler = (evt) => {
