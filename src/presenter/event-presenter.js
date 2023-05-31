@@ -37,6 +37,7 @@ export default class EventPresenter {
 
     this.#eventComponent = new EventView({
       event: this.#event,
+      destinations: this.#destinations,
       onEditClick: this.#handleToggleOpen,
       onFavoriteClick: this.#handleFavoriteClick,
     });

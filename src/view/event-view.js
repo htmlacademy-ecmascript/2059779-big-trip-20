@@ -13,8 +13,9 @@ function createEventViewOffersList(offers) {
   return `<ul class="event__selected-offers">${offersList}</ul>`;
 }
 
-function createEventViewTemplate(event) {
+function createEventViewTemplate(event, destinations) {
   const { basePrice, destination, dateFrom, dateTo, type, isFavorite, offers } = event;
+  const destinationTitle = destinations.find((point) => point.id === destination).name;
   const dayDateTimeAttribute = formatDate(dateFrom, 'YYYY-MM-DD');
   const dateFromDateTimeAttribute = formatDate(dateFrom, 'YYYY-MM-DD');
   const dateToDateTimeAttribute = formatDate(dateTo, 'YYYY-MM-DD');
@@ -33,7 +34,7 @@ function createEventViewTemplate(event) {
           <div class="event__type">
             <img class="event__type-icon" width="42" height="42" src="img/icons/${type}.png" alt="Event type icon">
           </div>
-          <h3 class="event__title">${capitalizeFirstLetter(type)} ${destination}</h3>
+          <h3 class="event__title">${capitalizeFirstLetter(type)} ${destinationTitle}</h3>
           <div class="event__schedule">
             <p class="event__time">
               <time class="event__start-time" datetime="${dateFromDateTimeAttribute}">${startTime}</time>
@@ -62,12 +63,14 @@ function createEventViewTemplate(event) {
 
 export default class EventView extends AbstractView {
   #event = null;
+  #destinations = null;
   #handleEditClick = null;
   #handleFavoriteClick = null;
 
-  constructor({ event, onEditClick, onFavoriteClick }) {
+  constructor({ event, destinations, onEditClick, onFavoriteClick }) {
     super();
     this.#event = event;
+    this.#destinations = destinations;
     this.#handleEditClick = onEditClick;
     this.#handleFavoriteClick = onFavoriteClick;
 
@@ -77,7 +80,7 @@ export default class EventView extends AbstractView {
   }
 
   get template() {
-    return createEventViewTemplate(this.#event);
+    return createEventViewTemplate(this.#event, this.#destinations);
   }
 
   #editClickHandler = (evt) => {

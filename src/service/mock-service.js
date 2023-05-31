@@ -57,7 +57,7 @@ export default class MockService {
 
       const dates = getEventDates();
 
-      return getRandomEvent(dates, destination.name, type, options);
+      return getRandomEvent(dates, destination.id, type, options);
     });
   }
 }

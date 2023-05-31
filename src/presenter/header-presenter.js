@@ -15,10 +15,10 @@ export default class HeaderPresenter {
 
   constructor({ headerContainer, tripTitle, tripDates, tripPrice, events }) {
     this.#headerContainer = headerContainer;
-    this.#events = events;
     this.#tripTitle = tripTitle;
     this.#tripDates = tripDates;
     this.#tripPrice = tripPrice;
+    this.#events = events;
   }
 
   init() {
@@ -35,7 +35,6 @@ export default class HeaderPresenter {
 
   #renderTripInfo() {
     render(new TripInfoView({
-      events: this.#events,
       tripTitle: this.#tripTitle,
       tripDates: this.#tripDates,
       totalPrice: this.#tripPrice,

@@ -54,22 +54,38 @@ export default class TripPresenter {
   }
 
   #renderTripInfo() {
+    //Каша какая-то, но ничего более приятного и читаемого я не придумал.
     const getTripTitle = () => {
-      let tripTitle = 'Маршрут не составлен';
+      let firstDestinationTitle = 'Задайте первую точку маршрута.';
+      let middleDestinationTitle = 'Задайте вторую точку маршрута.';
+      let endDestinationTitle = '';
+      let tripTitle = 'Маршрут не составлен.';
       switch (this.#eventsModel.events.length) {
         case 0:
           break;
         case 1:
-          tripTitle = `${this.#eventsModel.events[0].destination} — Добавьте конечную точку`;
+          firstDestinationTitle = this.#destinations.find((point) => point.id === this.#eventsModel.events[0].destination).name;
+
+          tripTitle = `${firstDestinationTitle} — Добавьте конечную точку`;
           break;
         case 2:
-          tripTitle = `${this.#eventsModel.events[0].destination} — ${this.#eventsModel.events[1].destination}`;
+          firstDestinationTitle = this.#destinations.find((point) => point.id === this.#eventsModel.events[0].destination).name;
+          middleDestinationTitle = this.#destinations.find((point) => point.id === this.#eventsModel.events[1].destination).name;
+
+          tripTitle = `${firstDestinationTitle} — ${middleDestinationTitle}`;
           break;
         case 3:
-          tripTitle = `${this.#eventsModel.events[0].destination} — ${this.#eventsModel.events[2].destination} — ${this.#events[3].destination}`;
+          firstDestinationTitle = this.#destinations.find((point) => point.id === this.#eventsModel.events[0].destination).name;
+          middleDestinationTitle = this.#destinations.find((point) => point.id === this.#eventsModel.events[1].destination).name;
+          endDestinationTitle = this.#destinations.find((point) => point.id === this.#eventsModel.events[2].destination).name;
+
+          tripTitle = `${firstDestinationTitle} — ${middleDestinationTitle} — ${endDestinationTitle}`;
           break;
         default:
-          tripTitle = `${this.#eventsModel.events[0].destination} — … — ${this.#eventsModel.events[this.#events.length - 1].destination}`;
+          firstDestinationTitle = this.#destinations.find((point) => point.id === this.#eventsModel.events[0].destination).name;
+          endDestinationTitle = this.#destinations.find((point) => point.id === this.#eventsModel.events[this.#events.length - 1].destination).name;
+
+          tripTitle = `${firstDestinationTitle} — … — ${endDestinationTitle}`;
       }
       return tripTitle;
     };

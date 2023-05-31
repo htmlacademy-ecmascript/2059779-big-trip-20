@@ -2,7 +2,7 @@ import AbstractView from '../framework/view/abstract-view.js';
 import { formatDate } from '../utils/date.js';
 
 //Здесь нужна будет новая функция форматирования или их комбинация, чтобы не дублировать месяц, если месяц старта и месяц окончания совпадают
-function createTripInfoTemplate(events, tripTitle, tripDates, totalPrice) {
+function createTripInfoTemplate(tripTitle, tripDates, totalPrice) {
   return (/*html*/
     `<section class="trip-main__trip-info  trip-info">
         <div class="trip-info__main">
@@ -16,20 +16,18 @@ function createTripInfoTemplate(events, tripTitle, tripDates, totalPrice) {
 }
 
 export default class TripInfoView extends AbstractView {
-  #events = null;
   #tripTitle = null;
   #tripDates = null;
   #totalPrice = null;
 
-  constructor({ events, tripTitle, tripDates, totalPrice }) {
+  constructor({ tripTitle, tripDates, totalPrice }) {
     super();
-    this.#events = events;
     this.#tripTitle = tripTitle;
     this.#tripDates = tripDates;
     this.#totalPrice = totalPrice;
   }
 
   get template() {
-    return createTripInfoTemplate(this.#events, this.#tripTitle, this.#tripDates, this.#totalPrice);
+    return createTripInfoTemplate(this.#tripTitle, this.#tripDates, this.#totalPrice);
   }
 }

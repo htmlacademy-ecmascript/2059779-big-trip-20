@@ -61,8 +61,9 @@ function createEventOffersList(options, selectedOptions) {
 
 function createEditEventTemplate({ state, destinations, options }) {
   const { destination, type, offers, dateFrom, dateTo, basePrice } = state;
-  const description = (destinations.length > 0) ? destinations.find((point) => point.name === destination).description : 'Неописуемая красота.';
-  const eventPhotos = (destinations.length > 0) ? destinations.find((point) => point.name === destination).pictures : [];
+  const description = (destinations.length > 0) ? destinations.find((point) => point.id === destination).description : 'Неописуемая красота.';
+  const eventPhotos = (destinations.length > 0) ? destinations.find((point) => point.id === destination).pictures : [];
+  const destinationName = (destinations.length > 0) ? destinations.find((point) => point.id === destination).name : 'Нет точек назначения.';
   const destinationList = createDestinationsList(destinations);
   const pictures = createDestinationPhotos(eventPhotos);
   const eventPrice = basePrice;
@@ -81,7 +82,7 @@ function createEditEventTemplate({ state, destinations, options }) {
               <label class="event__label  event__type-output" for="event-destination-1">
                 ${capitalizeFirstLetter(type)}
               </label>
-              <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destination}" list="destination-list-1">
+              <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destinationName}" list="destination-list-1">
               ${destinationList}
             </div>
 
