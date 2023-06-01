@@ -2,6 +2,9 @@ import { OFFER_TYPES } from '../const.js';
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 import { capitalizeFirstLetter } from '../utils/common.js';
 import { formatDate } from '../utils/date.js';
+import flatpickr from 'flatpickr';
+
+import 'flatpickr/dist/flatpickr.min.css';
 
 function createTypesSelectList(offerTypes, eventType) {
   const offerType = (offerTypes.length === 0) ? '' :
@@ -137,6 +140,9 @@ export default class EditEventView extends AbstractStatefulView {
   #handleToggleClick = null;
   #handleDeleteClick = null;
 
+  #datePickerFrom = null;
+  #datePickerTo = null;
+
   constructor({ event, onFormSubmit, onToggleClick, onDeleteClick, destinations, options }) {
     super();
     this.#event = event;
@@ -217,6 +223,56 @@ export default class EditEventView extends AbstractStatefulView {
     });
   };
 
+  #dateToChangeHandler = ([userDate]) => {
+    this._setState({
+      event: {
+        ...this._state.event,
+        dateFrom: userDate
+      }
+    });
+
+    this.#datePickerTo.set('maxDate', this._state.event.dateTo);
+  };
+
+  #dateFromChangeHandler = ([userDate]) => {
+    this._setState({
+      event: {
+        ...this._state.event,
+        dateFrom: userDate
+      }
+    });
+
+    this.#datePickerFrom.set('minDate', this._state.event.dateFrom);
+  };
+
+  #setDatePickers = () => {
+    this.#datePickerFrom = flatpickr(
+      this.element.querySelector('#event-start-time-1'), {
+        dateFormat: 'd/m/y H:i',
+        defaultDate: this._state.event.dateFrom,
+        enableTime: true,
+        maxDate: this._state.event.dateTo,
+        onClose: this.#dateToChangeHandler,
+        locale: {
+          firstDayOfWeek: 1,
+        }
+      }
+    );
+
+    this.#datePickerTo = flatpickr(
+      this.element.querySelector('#event-end-time-1'), {
+        dateFormat: 'd/m/y H:i',
+        defaultDate: this._state.event.dateTo,
+        enableTime: true,
+        minDate: this._state.event.dateFrom,
+        onClose: this.#dateFromChangeHandler,
+        locale: {
+          firstDayOfWeek: 1,
+        }
+      }
+    );
+  };
+
   _restoreHandlers = () => {
     this.element
       .querySelector('form')
@@ -249,6 +305,8 @@ export default class EditEventView extends AbstractStatefulView {
       optionsContainer.addEventListener('change', this.#optionClickHandler);
     }
 
+    this.#setDatePickers();
+
   };
 
   get template() {
@@ -263,4 +321,18 @@ export default class EditEventView extends AbstractStatefulView {
     //Здесь в демо проекте ParseToState. Но если его оставить, то при удалении ивента и раскрытии следующего выпадает ошибка. Поправил так, как было показано в ретро. Если честно, я уже запутался и не могу на данном этапе понять, что происходит и почему была ошибка.
     this.updateElement({ event });
   }
+
+  removeElement = () => {
+    super.removeElement();
+
+    if (this.#datePickerFrom) {
+      this.#datePickerFrom.destroy();
+      this.#datePickerFrom = null;
+    }
+
+    if (this.#datePickerTo) {
+      this.#datePickerTo.destroy();
+      this.#datePickerTo = null;
+    }
+  };
 }
