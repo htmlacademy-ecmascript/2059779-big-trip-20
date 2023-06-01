@@ -42,6 +42,10 @@ export default class TripPresenter {
     this.#renderTrip();
   }
 
+  get events() {
+    return this.#eventsModel.events;
+  }
+
   #renderTrip() {
     if (this.#events.length === 0) {
       this.#renderEmptyList();
@@ -155,8 +159,8 @@ export default class TripPresenter {
   };
 
   #handleEventUpdate = (updatedEvent) => {
-    this.#events = updateItem(this.#events, updatedEvent);
-    this.#initialEvents = updateItem(this.#initialEvents, updatedEvent);
+  /*     this.#events = updateItem(this.#events, updatedEvent);
+    this.#initialEvents = updateItem(this.#initialEvents, updatedEvent); */
     this.#eventPresenters.get(updatedEvent.id).init(updatedEvent);
   };
 

@@ -1,8 +1,11 @@
-export default class EventsModel {
+import Observable from '../framework/observable.js';
+
+export default class EventsModel extends Observable {
   #service = null;
   #events = null;
 
   constructor(service) {
+    super();
     this.#service = service;
     this.#events = this.#service.getEvents();
   }
