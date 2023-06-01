@@ -227,7 +227,7 @@ export default class EditEventView extends AbstractStatefulView {
     this._setState({
       event: {
         ...this._state.event,
-        dateFrom: userDate
+        dateTo: userDate
       }
     });
 
@@ -252,7 +252,8 @@ export default class EditEventView extends AbstractStatefulView {
         defaultDate: this._state.event.dateFrom,
         enableTime: true,
         maxDate: this._state.event.dateTo,
-        onClose: this.#dateToChangeHandler,
+        onClose: this.#dateFromChangeHandler,
+        'time_24hr': true,
         locale: {
           firstDayOfWeek: 1,
         }
@@ -265,7 +266,8 @@ export default class EditEventView extends AbstractStatefulView {
         defaultDate: this._state.event.dateTo,
         enableTime: true,
         minDate: this._state.event.dateFrom,
-        onClose: this.#dateFromChangeHandler,
+        onClose: this.#dateToChangeHandler,
+        'time_24hr': true,
         locale: {
           firstDayOfWeek: 1,
         }
