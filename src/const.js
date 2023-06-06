@@ -60,6 +60,18 @@ const PriceRange = {
 
 const MOCKS_COUNT = 6;
 
+const UserAction = {
+  UPDATE_EVENT: 'UPDATE_EVENT',
+  ADD_EVENT: 'ADD_EVENT',
+  DELETE_EVENT: 'DELETE_EVENT',
+};
+
+const UpdateType = {
+  PATCH: 'PATCH',
+  MINOR: 'MINOR',
+  MAJOR: 'MAJOR'
+};
+
 export {
   OFFER_TYPES,
   DESTINATIONS,
@@ -68,5 +80,7 @@ export {
   FilterType,
   PriceRange,
   MOCKS_COUNT,
-  SortType
+  SortType,
+  UserAction,
+  UpdateType
 };

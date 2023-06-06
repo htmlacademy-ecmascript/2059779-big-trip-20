@@ -1,6 +1,7 @@
 import { render, remove, replace } from '../framework/render.js';
 import EventView from '../view/event-view';
 import EditEventView from '../view/edit-event-view';
+import { UserAction, UpdateType } from '../const.js';
 
 const Mode = {
   DEFAULT: 'DEFAULT',
@@ -111,8 +112,11 @@ export default class EventPresenter {
   };
 
   #handleFormSubmit = (event) => {
+    this.#handleDataUpdate(
+      UserAction.UPDATE_EVENT,
+      UpdateType.MINOR,
+      event);
     this.#replaceFormToItem();
-    this.#handleDataUpdate(event);
   };
 
   #handleToggleClose = () => {
@@ -123,11 +127,18 @@ export default class EventPresenter {
     this.#replaceItemToForm();
   };
 
-  #handleDeleteClick = () => {
+  #handleDeleteClick = (event) => {
+    this.#handleDataUpdate(
+      UserAction.DELETE_EVENT,
+      UpdateType.MINOR,
+      event);
     this.#removeForm();
   };
 
   #handleFavoriteClick = () => {
-    this.#handleDataUpdate({ ...this.#event, isFavorite: !this.#event.isFavorite });
+    this.#handleDataUpdate(
+      UserAction.UPDATE_EVENT,
+      UpdateType.PATCH,
+      { ...this.#event, isFavorite: !this.#event.isFavorite });
   };
 }

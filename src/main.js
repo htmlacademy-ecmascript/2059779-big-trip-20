@@ -1,5 +1,4 @@
 import TripPresenter from './presenter/trip-presenter';
-//import HeaderPresenter from './presenter/header-presenter.js';
 import MockService from './service/mock-service';
 import DestinationsModel from './model/destinations-model';
 import OffersModel from './model/offers-model';
@@ -13,13 +12,6 @@ const offersModel = new OffersModel(mockService);
 const eventsModel = new EventsModel(mockService);
 const destinationsModel = new DestinationsModel(mockService);
 
-/* const headerPresenter = new HeaderPresenter({
-  headerContainer: siteHeaderWrapper,
-  destinationsModel,
-  offersModel,
-  eventsModel
-}); */
-
 const tripPresenter = new TripPresenter({
   headerContainer: siteHeaderWrapper,
   listContainer: eventsListWrapper,
@@ -28,5 +20,4 @@ const tripPresenter = new TripPresenter({
   eventsModel
 });
 
-//headerPresenter.init();
 tripPresenter.init();

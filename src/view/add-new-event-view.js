@@ -59,7 +59,7 @@ function createEventOffersList(offers, selectedOffers) {
 }
 
 function createAddNewEventTemplate({ destination, type, offers, dateFrom, dateTo }, destinations, options) {
-  const description = (destinations.length > 0) ? destinations.find((point) => point.name === destination).description : 'Неописуемая красота.';
+  const description = (destinations.length > 0) ? destinations.find((point) => point.name === destination).description : 'Indescribable beauty.';
   const eventPhotos = (destinations.length > 0) ? destinations.find((point) => point.name === destination).pictures : [];
   const allOffers = options.find((option) => option.type === type).offers;
   const selectedOffers = offers;

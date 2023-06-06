@@ -43,7 +43,6 @@ function createDestinationPhotos(pictures) {
 }
 
 function createEventOffersList(options, selectedOptions) {
-  //Тут прямо и неизящно генерируются id и for у input и label. По идее нужно собрать словарь из всех значений в разметке или придумать его, но мне что-то лень, и в данном случае я не вижу практической пользы.
   const offersList = options.length === 0 ? '' :
     options.map((option) => (/*html*/
       `<div class="event__offer-selector">
@@ -65,9 +64,9 @@ function createEventOffersList(options, selectedOptions) {
 
 function createEditEventTemplate({ state, destinations, options }) {
   const { destination, type, offers, dateFrom, dateTo, basePrice } = state;
-  const description = (destinations.length > 0) ? destinations.find((point) => point.id === destination).description : 'Неописуемая красота.';
+  const description = (destinations.length > 0) ? destinations.find((point) => point.id === destination).description : 'Indescribable beauty.';
   const eventPhotos = (destinations.length > 0) ? destinations.find((point) => point.id === destination).pictures : [];
-  const destinationName = (destinations.length > 0) ? destinations.find((point) => point.id === destination).name : 'Нет точек назначения.';
+  const destinationName = (destinations.length > 0) ? destinations.find((point) => point.id === destination).name : 'No destinations.';
   const destinationList = createDestinationsList(destinations);
   const pictures = createDestinationPhotos(eventPhotos);
   const eventPrice = basePrice;
@@ -174,7 +173,7 @@ export default class EditEventView extends AbstractStatefulView {
 
   #deleteClickHandler = (evt) => {
     evt.preventDefault();
-    this.#handleDeleteClick();
+    this.#handleDeleteClick(EditEventView.parseStateToEvent(this._state));
   };
 
   #typeFieldsetChangeHandler = (evt) => {
