@@ -2,6 +2,7 @@ import { render, remove, replace } from '../framework/render.js';
 import EventView from '../view/event-view';
 import EditEventView from '../view/edit-event-view';
 import { UserAction, UpdateType } from '../const.js';
+import { isDatesEqual } from '../utils/date.js';
 
 const Mode = {
   DEFAULT: 'DEFAULT',
@@ -111,11 +112,11 @@ export default class EventPresenter {
     }
   };
 
-  #handleFormSubmit = (event) => {
+  #handleFormSubmit = (update) => {
     this.#handleDataUpdate(
       UserAction.UPDATE_EVENT,
-      UpdateType.MINOR,
-      event);
+      isDatesEqual(this.#event.dateFrom, update.dueDate) ? UpdateType.MINOR : UpdateType.PATCH,
+      update);
     this.#replaceFormToItem();
   };
 

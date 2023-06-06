@@ -12,9 +12,8 @@ export default class TripPresenter {
   #listContainer = null;
   #headerContainer = null;
   #eventsModel = null;
-
-  #destinations = null;
-  #offers = null;
+  #destinationsModel = null;
+  #offersModel = null;
 
   #sortComponent = null;
   #emptyListComponent = new EmptyListView();
@@ -28,9 +27,8 @@ export default class TripPresenter {
     this.#listContainer = listContainer;
     this.#headerContainer = headerContainer;
     this.#eventsModel = eventsModel;
-    //Наверное по образу eventsModel нужно для консистентности завести геттеры для destinations и offers
-    this.#destinations = [...destinationsModel.destinations];
-    this.#offers = [...offersModel.offers];
+    this.#destinationsModel = destinationsModel;
+    this.#offersModel = offersModel;
     this.#eventsModel.addObserver(this.#handleModelUpdate);
   }
 
@@ -76,7 +74,7 @@ export default class TripPresenter {
   #renderTripInfo() {
     const headerPresenter = new HeaderPresenter({
       headerContainer: this.#headerContainer,
-      tripTitle: getTripTitle(this.#eventsModel, this.#destinations),
+      tripTitle: getTripTitle(this.#eventsModel, this.#destinationsModel.destinations),
       tripDates: this.#eventsModel.getTripDates(),
       tripPrice: this.#eventsModel.getTotalPrice(),
       events: this.#eventsModel.events,
@@ -100,8 +98,8 @@ export default class TripPresenter {
   #renderEvent(event) {
     const eventPresenter = new EventPresenter({
       listComponent: this.#listComponent.element,
-      destinations: this.#destinations,
-      options: this.#offers,
+      destinations: this.#destinationsModel.destinations,
+      options: this.#offersModel.offers,
       onDataUpdate: this.#handleModelUpdate,
       onModeChange: this.#handleModeChange,
     });
