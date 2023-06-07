@@ -22,7 +22,7 @@ function createEventViewTemplate(event, destinations, options) {
   const dateToDateTimeAttribute = formatDate(dateTo, 'YYYY-MM-DD');
   const startTime = formatDate(dateFrom, 'hh:mm');
   const finishTime = formatDate(dateTo, 'hh:mm');
-  const startDate = formatDate(dateTo, 'MMM DD');
+  const startDate = formatDate(dateFrom, 'MMM DD');
   const favoriteClassName = isFavorite
     ? 'event__favorite-btn event__favorite-btn--active'
     : 'event__favorite-btn';

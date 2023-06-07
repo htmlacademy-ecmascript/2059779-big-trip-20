@@ -1,52 +1,67 @@
-import { render } from '../framework/render.js';
+import { remove, render } from '../framework/render.js';
+import { getTripTitle } from '../utils/common.js';
+import { SortType, UserAction, UpdateType, FilterType } from '../const.js';
+import { compareEventPrice, compareEventDuration } from '../utils/sort.js';
+import { filter } from '../utils/filter.js';
 import TripSortView from '../view/trip-sort-view';
 import EmptyListView from '../view/empty-list-view.js';
+import EventListView from '../view/event-list-view.js';
 import EventPresenter from './event-presenter.js';
 import HeaderPresenter from './header-presenter.js';
-import EventListView from '../view/event-list-view.js';
-import { getTripTitle } from '../utils/common.js';
-import { SortType, UserAction, UpdateType } from '../const.js';
-import { compareEventPrice, compareEventDuration } from '../utils/sort.js';
+import FilterPresenter from './filter-presenter.js';
+import AddEventButtonView from '../view/add-new-event-button-view.js';
+
 
 export default class TripPresenter {
   #listContainer = null;
   #headerContainer = null;
+
+  #offersModel = null;
   #eventsModel = null;
   #destinationsModel = null;
-  #offersModel = null;
+  #filtersModel = null;
 
   #sortComponent = null;
-  #emptyListComponent = new EmptyListView();
+  #emptyListComponent = null;
   #listComponent = new EventListView();
 
   #currentSortType = SortType.DEFAULT;
+  #filterType = FilterType.EVERYTHING;
 
   #eventPresenters = new Map();
 
-  constructor({ listContainer, headerContainer, destinationsModel, offersModel, eventsModel }) {
+  constructor({ listContainer, headerContainer, eventsModel, offersModel, destinationsModel, filtersModel }) {
     this.#listContainer = listContainer;
     this.#headerContainer = headerContainer;
     this.#eventsModel = eventsModel;
-    this.#destinationsModel = destinationsModel;
     this.#offersModel = offersModel;
+    this.#destinationsModel = destinationsModel;
+    this.#filtersModel = filtersModel;
     this.#eventsModel.addObserver(this.#handleModelUpdate);
+    this.#filtersModel.addObserver(this.#handleModelUpdate);
   }
 
   init() {
     this.#renderTripInfo();
+    this.#renderFilters();
+    this.#renderAddEventButton();
     this.#renderSort();
     this.#renderTrip();
   }
 
   get events() {
+    this.#filterType = this.#filtersModel.filters;
+    const events = this.#eventsModel.events;
+    const filteredEvents = filter[this.#filterType](events);
+
     switch (this.#currentSortType) {
       case SortType.TIME_DOWN:
-        return [...this.#eventsModel.events].sort(compareEventDuration);
+        return filteredEvents.sort(compareEventDuration);
       case SortType.PRICE_DOWN:
-        return [...this.#eventsModel.events].sort(compareEventPrice);
+        return filteredEvents.sort(compareEventPrice);
     }
 
-    return this.#eventsModel.events;
+    return filteredEvents;
   }
 
   #renderTrip() {
@@ -69,6 +84,10 @@ export default class TripPresenter {
     if (resetSortType) {
       this.#currentSortType = SortType.DEFAULT;
     }
+
+    if (this.#emptyListComponent) {
+      remove(this.#emptyListComponent);
+    }
   }
 
   #renderTripInfo() {
@@ -77,7 +96,6 @@ export default class TripPresenter {
       tripTitle: getTripTitle(this.#eventsModel, this.#destinationsModel.destinations),
       tripDates: this.#eventsModel.getTripDates(),
       tripPrice: this.#eventsModel.getTotalPrice(),
-      events: this.#eventsModel.events,
     });
 
     headerPresenter.init();
@@ -91,7 +109,27 @@ export default class TripPresenter {
     render(this.#sortComponent, this.#listContainer);
   }
 
+  #renderFilters() {
+    const filterPresenter = new FilterPresenter({
+      filterContainer: this.#headerContainer,
+      filtersModel: this.#filtersModel,
+      eventsModel: this.#eventsModel
+    });
+
+    filterPresenter.init();
+  }
+
+  #renderAddEventButton() {
+    const addEventButtonComponent = new AddEventButtonView();
+
+    render(addEventButtonComponent, this.#headerContainer);
+  }
+
   #renderEmptyList() {
+    this.#emptyListComponent = new EmptyListView({
+      filterType: this.#filterType
+    });
+
     render(this.#emptyListComponent, this.#listContainer);
   }
 
@@ -100,7 +138,7 @@ export default class TripPresenter {
       listComponent: this.#listComponent.element,
       destinations: this.#destinationsModel.destinations,
       options: this.#offersModel.offers,
-      onDataUpdate: this.#handleModelUpdate,
+      onDataUpdate: this.#handleViewAction,
       onModeChange: this.#handleModeChange,
     });
 
