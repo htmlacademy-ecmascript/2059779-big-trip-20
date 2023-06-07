@@ -6,11 +6,11 @@ import { filter } from '../utils/filter.js';
 import TripSortView from '../view/trip-sort-view';
 import EmptyListView from '../view/empty-list-view.js';
 import EventListView from '../view/event-list-view.js';
+import AddEventButtonView from '../view/add-new-event-button-view.js';
 import EventPresenter from './event-presenter.js';
 import HeaderPresenter from './header-presenter.js';
 import FilterPresenter from './filter-presenter.js';
-import AddEventButtonView from '../view/add-new-event-button-view.js';
-
+import NewEventPresenter from './new-event-presenter.js';
 
 export default class TripPresenter {
   #listContainer = null;
@@ -29,6 +29,7 @@ export default class TripPresenter {
   #filterType = FilterType.EVERYTHING;
 
   #eventPresenters = new Map();
+  #newEventPresenter = null;
 
   constructor({ listContainer, headerContainer, eventsModel, offersModel, destinationsModel, filtersModel }) {
     this.#listContainer = listContainer;
@@ -37,6 +38,14 @@ export default class TripPresenter {
     this.#offersModel = offersModel;
     this.#destinationsModel = destinationsModel;
     this.#filtersModel = filtersModel;
+    this.#newEventPresenter = new NewEventPresenter({
+      events: this.#eventsModel.events,
+      destinations: this.#destinationsModel.destinations,
+      options: this.#offersModel.offers,
+      listContainer: this.#listContainer,
+      onDataChange: this.#handleViewAction,
+    });
+
     this.#eventsModel.addObserver(this.#handleModelUpdate);
     this.#filtersModel.addObserver(this.#handleModelUpdate);
   }
@@ -64,6 +73,12 @@ export default class TripPresenter {
     return filteredEvents;
   }
 
+  createEvent() {
+    this.#currentSortType = SortType.DEFAULT;
+    this.#filtersModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
+    this.#newEventPresenter.init();
+  }
+
   #renderTrip() {
     if (this.events.length === 0) {
       this.#renderEmptyList();
@@ -76,6 +91,7 @@ export default class TripPresenter {
   }
 
   #clearEventList({ resetSortType = false } = {}) {
+    this.#newEventPresenter.destroy();
     this.#eventPresenters.forEach((presenter) => presenter.destroy());
     this.#eventPresenters.clear();
 
@@ -120,7 +136,9 @@ export default class TripPresenter {
   }
 
   #renderAddEventButton() {
-    const addEventButtonComponent = new AddEventButtonView();
+    const addEventButtonComponent = new AddEventButtonView({
+      onClick: this.#handleNewEventButtonClick
+    });
 
     render(addEventButtonComponent, this.#headerContainer);
   }
@@ -179,6 +197,7 @@ export default class TripPresenter {
   };
 
   #handleModeChange = () => {
+    this.#newEventPresenter.destroy();
     this.#eventPresenters.forEach((presenter) => presenter.resetView());
   };
 
@@ -190,5 +209,9 @@ export default class TripPresenter {
     this.#currentSortType = sortType;
     this.#clearEventList();
     this.#renderTrip();
+  };
+
+  #handleNewEventButtonClick = () => {
+    this.createEvent();
   };
 }

@@ -23,4 +23,5 @@ const tripPresenter = new TripPresenter({
   filtersModel
 });
 
+
 tripPresenter.init();
