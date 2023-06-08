@@ -6,7 +6,7 @@ import { filter } from '../utils/filter.js';
 import TripSortView from '../view/trip-sort-view';
 import EmptyListView from '../view/empty-list-view.js';
 import EventListView from '../view/event-list-view.js';
-import AddEventButtonView from '../view/add-new-event-button-view.js';
+import EventButtonView from '../view/new-event-button-view.js';
 import EventPresenter from './event-presenter.js';
 import HeaderPresenter from './header-presenter.js';
 import FilterPresenter from './filter-presenter.js';
@@ -39,10 +39,9 @@ export default class TripPresenter {
     this.#destinationsModel = destinationsModel;
     this.#filtersModel = filtersModel;
     this.#newEventPresenter = new NewEventPresenter({
-      events: this.#eventsModel.events,
       destinations: this.#destinationsModel.destinations,
       options: this.#offersModel.offers,
-      listContainer: this.#listContainer,
+      listComponent: this.#listComponent.element,
       onDataChange: this.#handleViewAction,
     });
 
@@ -54,7 +53,6 @@ export default class TripPresenter {
     this.#renderTripInfo();
     this.#renderFilters();
     this.#renderAddEventButton();
-    this.#renderSort();
     this.#renderTrip();
   }
 
@@ -80,6 +78,7 @@ export default class TripPresenter {
   }
 
   #renderTrip() {
+    this.#renderSort();
     if (this.events.length === 0) {
       this.#renderEmptyList();
     } else {
@@ -94,8 +93,7 @@ export default class TripPresenter {
     this.#newEventPresenter.destroy();
     this.#eventPresenters.forEach((presenter) => presenter.destroy());
     this.#eventPresenters.clear();
-
-    //Не уверен пока, что мне здесь нужно удалять что-то ещё типа сортировки. Тем более она у меня рисуется не в методе render. Я вообще пока не понял, зачем её удаляют
+    remove(this.#sortComponent);
 
     if (resetSortType) {
       this.#currentSortType = SortType.DEFAULT;
@@ -119,6 +117,7 @@ export default class TripPresenter {
 
   #renderSort() {
     this.#sortComponent = new TripSortView({
+      currentSortType: this.#currentSortType,
       onSortTypeChange: this.#handleSortTypeChange
     });
 
@@ -129,14 +128,14 @@ export default class TripPresenter {
     const filterPresenter = new FilterPresenter({
       filterContainer: this.#headerContainer,
       filtersModel: this.#filtersModel,
-      eventsModel: this.#eventsModel
+      eventsModel: this.#eventsModel,
     });
 
     filterPresenter.init();
   }
 
   #renderAddEventButton() {
-    const addEventButtonComponent = new AddEventButtonView({
+    const addEventButtonComponent = new EventButtonView({
       onClick: this.#handleNewEventButtonClick
     });
 
@@ -178,11 +177,9 @@ export default class TripPresenter {
     }
   };
 
-  //И вот в этом месте я понял, что лучше было называть всё point, а не event ;-D
   #handleModelUpdate = (updateType, data) => {
     switch (updateType) {
       case UpdateType.PATCH:
-        // - обновить часть списка (например, когда поменялось описание)
         this.#eventPresenters.get(data.id).init(data);
         break;
       case UpdateType.MINOR:
@@ -190,8 +187,8 @@ export default class TripPresenter {
         this.#renderTrip();
         break;
       case UpdateType.MAJOR:
-        this.#clearEventList();
-        this.#renderTrip({ resetSortType: true });
+        this.#clearEventList({ resetSortType: true });
+        this.#renderTrip();
         break;
     }
   };

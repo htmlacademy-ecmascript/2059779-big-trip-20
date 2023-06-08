@@ -1,7 +1,7 @@
 import AbstractView from '../framework/view/abstract-view.js';
 import { SortType } from '../const.js';
 
-function createTripSortTemplate() {
+function createTripSortTemplate(currentSortType) {
   return (/*html*/
     ` <form class="trip-events__trip-sort  trip-sort" action="#" method="get">
         <div class="trip-sort__item  trip-sort__item--day">
@@ -12,7 +12,7 @@ function createTripSortTemplate() {
             name="trip-sort"
             value="sort-day"
             data-sort-type="${SortType.DEFAULT}"
-            checked
+            ${currentSortType === SortType.DEFAULT ? 'checked' : ''}
             >
           <label class="trip-sort__btn" for="sort-day">Day</label>
         </div>
@@ -29,7 +29,8 @@ function createTripSortTemplate() {
             type="radio"
             name="trip-sort"
             value="sort-time"
-            data-sort-type="${SortType.TIME_DOWN}">
+            data-sort-type="${SortType.TIME_DOWN}"
+            ${currentSortType === SortType.TIME_DOWN ? 'checked' : ''}>
           <label class="trip-sort__btn" for="sort-time">Time</label>
         </div>
 
@@ -40,7 +41,8 @@ function createTripSortTemplate() {
             type="radio"
             name="trip-sort"
             value="sort-price"
-            data-sort-type="${SortType.PRICE_DOWN}">
+            data-sort-type="${SortType.PRICE_DOWN}"
+            ${currentSortType === SortType.PRICE_DOWN ? 'checked' : ''}>
           <label class="trip-sort__btn" for="sort-price">Price</label>
         </div>
 
@@ -53,9 +55,11 @@ function createTripSortTemplate() {
 
 export default class TripSortView extends AbstractView {
   #handleSortTypeChange = null;
+  #currentSortType = null;
 
-  constructor({ onSortTypeChange }) {
+  constructor({ currentSortType, onSortTypeChange }) {
     super();
+    this.#currentSortType = currentSortType;
     this.#handleSortTypeChange = onSortTypeChange;
     this.element.addEventListener('click', this.#sortTypeChangeHandler);
   }
@@ -65,12 +69,11 @@ export default class TripSortView extends AbstractView {
       return;
     }
 
-    //Не понятно, нужно здесь дефолт отменять, или нет. Если отменить, нужно заново прописывать логику навешивания атрибута checked. А от него и стили падают. Это минус. А в чём плюс отмены дефолтного поведения в данном случае я не понимаю.
-    //evt.preventDefault();
+    evt.preventDefault();
     this.#handleSortTypeChange(evt.target.dataset.sortType);
   };
 
   get template() {
-    return createTripSortTemplate();
+    return createTripSortTemplate(this.#currentSortType);
   }
 }

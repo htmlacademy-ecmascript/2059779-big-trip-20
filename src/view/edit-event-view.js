@@ -64,7 +64,7 @@ function createEventOffersList(options, selectedOptions) {
 
 function createEditEventTemplate({ state, destinations, options }) {
   const { destination, type, offers, dateFrom, dateTo, basePrice } = state;
-  const description = (destinations.length > 0) ? destinations.find((point) => point.id === destination).description : 'Indescribable beauty.';
+  const description = (destinations.length > 0) ? destinations.find((point) => point.id === destination).description : '';
   const eventPhotos = (destinations.length > 0) ? destinations.find((point) => point.id === destination).pictures : [];
   const destinationName = (destinations.length > 0) ? destinations.find((point) => point.id === destination).name : 'No destinations.';
   const destinationList = createDestinationsList(destinations);
@@ -102,7 +102,14 @@ function createEditEventTemplate({ state, destinations, options }) {
                 <span class="visually-hidden">Price</span>
                 &euro;
               </label>
-              <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${eventPrice}">
+              <input
+                class="event__input  event__input--price"
+                id="event-price-1"
+                type="text"
+                name="event-price"
+                value="${eventPrice}"
+                pattern="[1-9]\\d*"
+                title="Enter a positive integer">
             </div>
 
             <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
@@ -121,9 +128,7 @@ function createEditEventTemplate({ state, destinations, options }) {
               <h3 class="event__section-title  event__section-title--destination">Destination</h3>
               <p class="event__destination-description">${description}</p>
               <div class="event__photos-container">
-                <div class="event__photos-tape">
-                  ${pictures}
-                </div>
+                ${pictures}
               </div>
             </section>
           </section>
@@ -187,6 +192,18 @@ export default class EditEventView extends AbstractStatefulView {
     });
   };
 
+  #destinationChangeHandler = () => {
+    const selectedDestination = this.element.querySelector('.event__input--destination').value;
+    const selectedDestinationId = this.#destinations.find((destination) => destination.name === selectedDestination).id;
+
+    this.updateElement({
+      event: {
+        ...this._state.event,
+        destination: selectedDestinationId,
+      }
+    });
+  };
+
   #optionClickHandler = (evt) => {
     evt.preventDefault();
     const selectedOptions = Array.from(this.element.querySelectorAll('.event__offer-checkbox:checked'));
@@ -206,18 +223,6 @@ export default class EditEventView extends AbstractStatefulView {
       event: {
         ...this._state.event,
         basePrice: evt.target.value,
-      }
-    });
-  };
-
-  #destinationChangeHandler = () => {
-    const selectedDestination = this.element.querySelector('.event__input--destination').value;
-    const selectedDestinationId = this.#destinations.find((destination) => destination.name === selectedDestination).id;
-
-    this._setState({
-      event: {
-        ...this._state.event,
-        destination: selectedDestinationId,
       }
     });
   };

@@ -9,8 +9,8 @@ import 'flatpickr/dist/flatpickr.min.css';
 const EMPTY_EVENT = {
   id: 0,
   basePrice: 0,
-  dateFrom: null,
-  dateTo: null,
+  dateFrom: new Date().toISOString(),
+  dateTo: new Date().toISOString(),
   destination: null,
   isFavorite: false,
   offers: [],
@@ -46,11 +46,22 @@ function createDestinationsList(destinations) {
   return `<datalist id="destination-list-1">${destinationsList}</datalist>`;
 }
 
-function createDestinationPhotos(pictures) {
-  const picturesList = pictures.length === 0 ? '' :
-    pictures.map((picture) =>
-      `<img class="event__photo" src="${picture.src}" alt="${picture.description}">`).join('');
-  return `<div class="event__photos-tape">${picturesList}</div>`;
+function createDescription(description, pictures) {
+  if (description) {
+    const picturesList = pictures.length === 0 ? '' :
+      pictures.map((picture) =>
+        `<img class="event__photo" src="${picture.src}" alt="${picture.description}">`).join('');
+    return `
+      <section class="event__section  event__section--destination">
+      <h3 class="event__section-title  event__section-title--destination">Destination</h3>
+        <p class="event__destination-description">${description}</p>
+        <div class="event__photos-container">
+            <div class="event__photos-tape">${picturesList}</div>
+        </div>
+      </section>`;
+  } else {
+    return '';
+  }
 }
 
 function createEventOffersList(options, selectedOptions) {
@@ -75,11 +86,10 @@ function createEventOffersList(options, selectedOptions) {
 
 function createNewEventTemplate({ state, destinations, options }) {
   const { destination, type, offers, dateFrom, dateTo, basePrice } = state;
-  const description = (destinations.length > 0) ? destinations.find((point) => point.id === destination).description : 'Indescribable beauty.';
-  const eventPhotos = (destinations.length > 0) ? destinations.find((point) => point.id === destination).pictures : [];
-  const destinationName = (destinations.length > 0) ? destinations.find((point) => point.id === destination).name : 'No destinations.';
+  const description = (destinations.length > 0 && destination !== null) ? destinations.find((point) => point.id === destination).description : '';
+  const eventPhotos = (destinations.length > 0 && destination !== null) ? destinations.find((point) => point.id === destination).pictures : [];
+  const destinationName = (destinations.length > 0 && destination !== null) ? destinations.find((point) => point.id === destination).name : '';
   const destinationList = createDestinationsList(destinations);
-  const pictures = createDestinationPhotos(eventPhotos);
   const eventPrice = basePrice;
   const timeFrom = formatDate(dateFrom, 'DD/MM/YY hh:mm');
   const timeTo = formatDate(dateTo, 'DD/MM/YY hh:mm');
@@ -88,7 +98,7 @@ function createNewEventTemplate({ state, destinations, options }) {
   const offerTypes = OFFER_TYPES;
 
   return (/*html*/
-    `< li class="trip-events__item" >
+    `<li li class="trip-events__item" >
       <form class="event event--edit" action="#" method="post">
         <header class="event__header">
           ${createTypesSelectList(offerTypes, type)}
@@ -113,11 +123,18 @@ function createNewEventTemplate({ state, destinations, options }) {
                   <span class="visually-hidden">Price</span>
                   &euro;
                 </label>
-                <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${eventPrice}">
+                <input
+                  class="event__input  event__input--price"
+                  id="event-price-1"
+                  type="text"
+                  name="event-price"
+                  value="${eventPrice}"
+                  pattern="[1-9]\\d*"
+                  title="Enter a positive integer">
               </div>
 
               <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-              <button class="event__reset-btn" type="reset">Delete</button>
+              <button class="event__reset-btn" type="reset">Cancel</button>
               <button class="event__rollup-btn" type="button">
                 <span class="visually-hidden">Open event</span>
               </button>
@@ -127,19 +144,9 @@ function createNewEventTemplate({ state, destinations, options }) {
                 <h3 class="event__section-title  event__section-title--offers">Offers</h3>
                 ${offersList}
               </section>
-
-              <section class="event__section  event__section--destination">
-                <h3 class="event__section-title  event__section-title--destination">Destination</h3>
-                <p class="event__destination-description">${description}</p>
-                <div class="event__photos-container">
-                  <div class="event__photos-tape">
-                    ${pictures}
-                  </div>
-                </div>
-              </section>
-            </section>
+              ${createDescription(description, eventPhotos)}
           </form>
-        </>`
+        </li>`
   );
 }
 
@@ -225,7 +232,7 @@ export default class NewEventView extends AbstractStatefulView {
     const selectedDestination = this.element.querySelector('.event__input--destination').value;
     const selectedDestinationId = this.#destinations.find((destination) => destination.name === selectedDestination).id;
 
-    this._setState({
+    this.updateElement({
       event: {
         ...this._state.event,
         destination: selectedDestinationId,
@@ -322,6 +329,7 @@ export default class NewEventView extends AbstractStatefulView {
 
   get template() {
     return createNewEventTemplate({
+      event: this.#event,
       state: this._state.event,
       destinations: this.#destinations,
       options: this.#options
