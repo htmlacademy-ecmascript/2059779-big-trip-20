@@ -300,7 +300,6 @@ export default class EditEventView extends AbstractStatefulView {
       .querySelector('.event__input--price')
       .addEventListener('input', this.#priceChangeHandler);
 
-    //Перерисовывается, но только после нажатия Save или Enter. Не могу придумать, как по-другому.
     this.element
       .querySelector('.event__input--destination')
       .addEventListener('change', this.#destinationChangeHandler);

@@ -46,16 +46,18 @@ export default class EventPresenter {
       onFavoriteClick: this.#handleFavoriteClick,
     });
 
-    this.#editEventComponent = new EditEventView(
-      {
-        event: this.#event,
-        onFormSubmit: this.#handleFormSubmit,
-        onToggleClick: this.#handleToggleClose,
-        onDeleteClick: this.#handleDeleteClick,
-        destinations: this.#destinations,
-        options: this.#options,
-      }
-    );
+    if (this.#mode === Mode.EDITING) {
+      this.#editEventComponent = new EditEventView(
+        {
+          event: this.#event,
+          onFormSubmit: this.#handleFormSubmit,
+          onToggleClick: this.#handleToggleClose,
+          onDeleteClick: this.#handleDeleteClick,
+          destinations: this.#destinations,
+          options: this.#options,
+        }
+      );
+    }
 
     if (prevEventComponent === null || prevEventEditComponent === null) {
       render(this.#eventComponent, this.#listComponent);
@@ -87,6 +89,16 @@ export default class EventPresenter {
   }
 
   #replaceItemToForm() {
+    this.#editEventComponent = new EditEventView(
+      {
+        event: this.#event,
+        onFormSubmit: this.#handleFormSubmit,
+        onToggleClick: this.#handleToggleClose,
+        onDeleteClick: this.#handleDeleteClick,
+        destinations: this.#destinations,
+        options: this.#options,
+      }
+    );
     replace(this.#editEventComponent, this.#eventComponent);
     document.addEventListener('keydown', this.#escKeyDownHandler);
     this.#handleModeChange();
@@ -95,6 +107,7 @@ export default class EventPresenter {
 
   #replaceFormToItem() {
     replace(this.#eventComponent, this.#editEventComponent);
+    this.#editEventComponent.removeElement();
     document.removeEventListener('keydown', this.#escKeyDownHandler);
     this.#mode = Mode.DEFAULT;
   }
