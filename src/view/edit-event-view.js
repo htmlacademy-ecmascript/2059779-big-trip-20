@@ -235,7 +235,7 @@ export default class EditEventView extends AbstractStatefulView {
       }
     });
 
-    this.#datePickerTo.set('maxDate', this._state.event.dateTo);
+    this.#datePickerFrom.set('maxDate', this._state.event.dateTo);
   };
 
   #dateFromChangeHandler = ([userDate]) => {
@@ -246,7 +246,7 @@ export default class EditEventView extends AbstractStatefulView {
       }
     });
 
-    this.#datePickerFrom.set('minDate', this._state.event.dateFrom);
+    this.#datePickerTo.set('minDate', this._state.event.dateFrom);
   };
 
   #setDatePickers = () => {
