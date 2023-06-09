@@ -50,11 +50,12 @@ export default class EventPresenter {
       this.#editEventComponent = new EditEventView(
         {
           event: this.#event,
+          destinations: this.#destinations,
+          options: this.#options,
+          isNewEvent: false,
           onFormSubmit: this.#handleFormSubmit,
           onToggleClick: this.#handleToggleClose,
           onDeleteClick: this.#handleDeleteClick,
-          destinations: this.#destinations,
-          options: this.#options,
         }
       );
     }

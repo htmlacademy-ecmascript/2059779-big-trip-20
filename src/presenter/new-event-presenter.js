@@ -1,5 +1,5 @@
 import { remove, render, RenderPosition } from '../framework/render.js';
-import NewEventView from '../view/new-event-view.js';
+import EditEventView from '../view/edit-event-view.js';
 import { UserAction, UpdateType } from '../const.js';
 
 export default class NewEventPresenter {
@@ -25,9 +25,10 @@ export default class NewEventPresenter {
       return;
     }
 
-    this.#newEventComponent = new NewEventView({
+    this.#newEventComponent = new EditEventView({
       destinations: this.#destinations,
       options: this.#options,
+      isNewEvent: true,
       onFormSubmit: this.#handleFormSubmit,
       onDeleteClick: this.#handleDeleteClick,
       onToggleClick: this.#handleDeleteClick
@@ -55,7 +56,7 @@ export default class NewEventPresenter {
     this.#handleDataChange(
       UserAction.ADD_EVENT,
       UpdateType.MINOR,
-      { id: crypto.randomUUID(), ...event },
+      { ...event, id: crypto.randomUUID() },
     );
     this.destroy();
   };

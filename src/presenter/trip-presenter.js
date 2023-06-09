@@ -32,6 +32,8 @@ export default class TripPresenter {
   #eventPresenters = new Map();
   #newEventPresenter = null;
 
+  #isCreating = false;
+
   constructor({ listContainer, headerContainer, eventsModel, offersModel, destinationsModel, filtersModel }) {
     this.#listContainer = listContainer;
     this.#headerContainer = headerContainer;
@@ -80,10 +82,10 @@ export default class TripPresenter {
   }
 
   #renderTrip() {
-    this.#renderSort();
-    if (this.events.length === 0) {
+    if (this.events.length === 0 && !this.#isCreating) {
       this.#renderEmptyList();
     } else {
+      this.#renderSort();
       render(this.#listComponent, this.#listContainer);
       this.events.forEach((event) => {
         this.#renderEvent(event);
@@ -211,11 +213,13 @@ export default class TripPresenter {
   };
 
   #handleNewEventButtonClick = () => {
+    this.#isCreating = true;
     this.createEvent();
     this.#newEventButtonComponent.element.disabled = true;
   };
 
   #handleNewEventFormClose = () => {
+    this.#isCreating = false;
     this.#newEventButtonComponent.element.disabled = false;
   };
 }

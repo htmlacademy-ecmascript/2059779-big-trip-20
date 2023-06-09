@@ -6,6 +6,17 @@ import flatpickr from 'flatpickr';
 
 import 'flatpickr/dist/flatpickr.min.css';
 
+const EMPTY_EVENT = {
+  id: 0,
+  basePrice: 0,
+  dateFrom: new Date().toISOString(),
+  dateTo: new Date().toISOString(),
+  destination: null,
+  isFavorite: false,
+  offers: [],
+  type: OFFER_TYPES[0],
+};
+
 function createTypesSelectList(offerTypes, eventType) {
   const offerType = (offerTypes.length === 0) ? '' :
     offerTypes.map((type) =>
@@ -35,11 +46,28 @@ function createDestinationsList(destinations) {
   return `<datalist id="destination-list-1">${destinationsList}</datalist>`;
 }
 
-function createDestinationPhotos(pictures) {
-  const picturesList = pictures.length === 0 ? '' :
-    pictures.map((picture) =>
-      `<img class="event__photo" src="${picture.src}" alt="${picture.description}">`).join('');
-  return `<div class="event__photos-tape">${picturesList}</div>`;
+function createDestinationPattern(destinations) {
+  const cities = destinations.map((destination) => destination.name);
+  const regex = `^(${cities.join('|')})$`;
+  return regex;
+}
+
+function createDescription(description, pictures) {
+  if (description) {
+    const picturesList = pictures.length === 0 ? '' :
+      pictures.map((picture) =>
+        `<img class="event__photo" src="${picture.src}" alt="${picture.description}">`).join('');
+    return `
+      <section class="event__section  event__section--destination">
+      <h3 class="event__section-title  event__section-title--destination">Destination</h3>
+        <p class="event__destination-description">${description}</p>
+        <div class="event__photos-container">
+            <div class="event__photos-tape">${picturesList}</div>
+        </div>
+      </section>`;
+  } else {
+    return '';
+  }
 }
 
 function createEventOffersList(options, selectedOptions) {
@@ -62,13 +90,22 @@ function createEventOffersList(options, selectedOptions) {
   return `<div class="event__available-offers">${offersList}</div>`;
 }
 
-function createEditEventTemplate({ state, destinations, options }) {
+function createToggleButton(isNewEvent) {
+  if (isNewEvent) {
+    return '';
+  } else {
+    return `<button class="event__rollup-btn" type="button">
+      <span class="visually-hidden">Open event</span>
+      </button>`;
+  }
+}
+
+function createEditEventTemplate({ state, destinations, options, isNewEvent }) {
   const { destination, type, offers, dateFrom, dateTo, basePrice } = state;
-  const description = (destinations.length > 0) ? destinations.find((point) => point.id === destination).description : '';
-  const eventPhotos = (destinations.length > 0) ? destinations.find((point) => point.id === destination).pictures : [];
-  const destinationName = (destinations.length > 0) ? destinations.find((point) => point.id === destination).name : 'No destinations.';
+  const description = (destinations.length > 0 && destination !== null) ? destinations.find((point) => point.id === destination).description : '';
+  const eventPhotos = (destinations.length > 0 && destination !== null) ? destinations.find((point) => point.id === destination).pictures : [];
+  const destinationName = (destinations.length > 0 && destination !== null) ? destinations.find((point) => point.id === destination).name : '';
   const destinationList = createDestinationsList(destinations);
-  const pictures = createDestinationPhotos(eventPhotos);
   const eventPrice = basePrice;
   const timeFrom = formatDate(dateFrom, 'DD/MM/YY hh:mm');
   const timeTo = formatDate(dateTo, 'DD/MM/YY hh:mm');
@@ -77,69 +114,68 @@ function createEditEventTemplate({ state, destinations, options }) {
   const offerTypes = OFFER_TYPES;
 
   return (/*html*/
-    `<li class="trip-events__item">
+    `<li li class="trip-events__item" >
       <form class="event event--edit" action="#" method="post">
-          <header class="event__header">
-            ${createTypesSelectList(offerTypes, type)}
-            <div class="event__field-group  event__field-group--destination">
-              <label class="event__label  event__type-output" for="event-destination-1">
-                ${capitalizeFirstLetter(type)}
-              </label>
-              <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destinationName}" list="destination-list-1">
+        <header class="event__header">
+          ${createTypesSelectList(offerTypes, type)}
+          <div class="event__field-group  event__field-group--destination">
+            <label class="event__label  event__type-output" for="event-destination-1">
+              ${capitalizeFirstLetter(type)}
+            </label>
+            <input
+              class="event__input  event__input--destination" id="event-destination-1"
+              type="text"
+              name="event-destination"
+              list="destination-list-1"
+              value="${destinationName}"
+              title="Enter enlisted city"
+              pattern="${createDestinationPattern(destinations)}">
               ${destinationList}
-            </div>
+          </div>
 
-            <div class="event__field-group  event__field-group--time">
-              <label class="visually-hidden" for="event-start-time-1">From</label>
-              <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${timeFrom}">
+          <div class="event__field-group  event__field-group--time">
+            <label class="visually-hidden" for="event-start-time-1">From</label>
+            <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${timeFrom}">
               &mdash;
               <label class="visually-hidden" for="event-end-time-1">To</label>
               <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${timeTo}">
-            </div>
-
-            <div class="event__field-group  event__field-group--price">
-              <label class="event__label" for="event-price-1">
-                <span class="visually-hidden">Price</span>
-                &euro;
-              </label>
-              <input
-                class="event__input  event__input--price"
-                id="event-price-1"
-                type="text"
-                name="event-price"
-                value="${eventPrice}"
-                pattern="[1-9]\\d*"
-                title="Enter a positive integer">
-            </div>
-
-            <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-            <button class="event__reset-btn" type="reset">Delete</button>
-            <button class="event__rollup-btn" type="button">
-              <span class="visually-hidden">Open event</span>
-            </button>
-          </header>
-          <section class="event__details">
-            <section class="event__section  event__section--offers">
-              <h3 class="event__section-title  event__section-title--offers">Offers</h3>
-              ${offersList}
-            </section>
-
-            <section class="event__section  event__section--destination">
-              <h3 class="event__section-title  event__section-title--destination">Destination</h3>
-              <p class="event__destination-description">${description}</p>
-              <div class="event__photos-container">
-                ${pictures}
               </div>
-            </section>
-          </section>
-        </form>
-      </li>`);
+
+              <div class="event__field-group  event__field-group--price">
+                <label class="event__label" for="event-price-1">
+                  <span class="visually-hidden">Price</span>
+                  &euro;
+                </label>
+                <input
+                  class="event__input  event__input--price"
+                  id="event-price-1"
+                  type="text"
+                  name="event-price"
+                  value="${eventPrice}"
+                  pattern="[1-9]\\d*"
+                  title="Enter a positive integer">
+              </div>
+
+              <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
+              <button class="event__reset-btn" type="reset">${isNewEvent ? 'Cancel' : 'Delete'}</button>
+              ${createToggleButton(isNewEvent)}
+            </header>
+            <section class="event__details">
+              <section class="event__section  event__section--offers">
+                <h3 class="event__section-title  event__section-title--offers">Offers</h3>
+                ${offersList}
+              </section>
+              ${createDescription(description, eventPhotos)}
+          </form>
+        </li>`
+  );
 }
 
 export default class EditEventView extends AbstractStatefulView {
   #event = null;
   #destinations = null;
   #options = null;
+  #isNewEvent = null;
   #handleFormSubmit = null;
   #handleToggleClick = null;
   #handleDeleteClick = null;
@@ -147,11 +183,12 @@ export default class EditEventView extends AbstractStatefulView {
   #datePickerFrom = null;
   #datePickerTo = null;
 
-  constructor({ event, onFormSubmit, onToggleClick, onDeleteClick, destinations, options }) {
+  constructor({ event = EMPTY_EVENT, destinations, options, isNewEvent, onFormSubmit, onToggleClick, onDeleteClick }) {
     super();
     this.#event = event;
     this.#destinations = destinations;
     this.#options = options;
+    this.#isNewEvent = isNewEvent;
     this.#handleFormSubmit = onFormSubmit;
     this.#handleToggleClick = onToggleClick;
     this.#handleDeleteClick = onDeleteClick;
@@ -161,7 +198,6 @@ export default class EditEventView extends AbstractStatefulView {
     this._restoreHandlers();
   }
 
-  //Я правильно понимаю, что это просто shallow copy объекта? Или вернее мы в новый пустой объект записываем ключ event, в котором хранится shallow copy. Дальше мы сначала наполняем этот промежуточный объект, а потом передаём его в _setState, который делает глубокое копирование в _state? Пока не понимаю, почему нам нельзя передать event сразу в _setState. В учебном примере ещё дополнительные свойства были, может поэтому?
   static parseEventToState = ({ event }) => ({ event });
 
   static parseStateToEvent = (state) => state.event;
@@ -193,15 +229,23 @@ export default class EditEventView extends AbstractStatefulView {
   };
 
   #destinationChangeHandler = () => {
-    const selectedDestination = this.element.querySelector('.event__input--destination').value;
-    const selectedDestinationId = this.#destinations.find((destination) => destination.name === selectedDestination).id;
+    const input = this.element.querySelector('.event__input--destination');
+    const selectedDestination = input.value;
+    //Как-то с неймингом здесь у меня туго.
+    const isValidDestination = this.#destinations.find((destination) => destination.name === selectedDestination);
+    if (isValidDestination) {
+      const selectedDestinationId = this.#destinations.find((destination) => destination.name === selectedDestination).id;
 
-    this.updateElement({
-      event: {
-        ...this._state.event,
-        destination: selectedDestinationId,
-      }
-    });
+      this.updateElement({
+        event: {
+          ...this._state.event,
+          destination: selectedDestinationId,
+        }
+      });
+    } else {
+      input.setCustomValidity('Choose a city from the list');
+      input.reportValidity();
+    }
   };
 
   #optionClickHandler = (evt) => {
@@ -254,9 +298,9 @@ export default class EditEventView extends AbstractStatefulView {
       this.element.querySelector('#event-start-time-1'), {
         dateFormat: 'd/m/y H:i',
         defaultDate: this._state.event.dateFrom,
-        enableTime: true,
         maxDate: this._state.event.dateTo,
         onClose: this.#dateFromChangeHandler,
+        enableTime: true,
         'time_24hr': true,
         locale: {
           firstDayOfWeek: 1,
@@ -268,9 +312,9 @@ export default class EditEventView extends AbstractStatefulView {
       this.element.querySelector('#event-end-time-1'), {
         dateFormat: 'd/m/y H:i',
         defaultDate: this._state.event.dateTo,
-        enableTime: true,
         minDate: this._state.event.dateFrom,
         onClose: this.#dateToChangeHandler,
+        enableTime: true,
         'time_24hr': true,
         locale: {
           firstDayOfWeek: 1,
@@ -284,9 +328,11 @@ export default class EditEventView extends AbstractStatefulView {
       .querySelector('form')
       .addEventListener('submit', this.#formSubmitHandler);
 
-    this.element
-      .querySelector('.event__rollup-btn')
-      .addEventListener('click', this.#toggleClickHandler);
+    if (this.element.querySelector('.event__rollup-btn')) {
+      this.element
+        .querySelector('.event__rollup-btn')
+        .addEventListener('click', this.#toggleClickHandler);
+    }
 
     this.element
       .querySelector('.event__reset-btn')
@@ -316,9 +362,11 @@ export default class EditEventView extends AbstractStatefulView {
 
   get template() {
     return createEditEventTemplate({
+      event: this.#event,
       state: this._state.event,
       destinations: this.#destinations,
-      options: this.#options
+      options: this.#options,
+      isNewEvent: this.#isNewEvent
     });
   }
 
