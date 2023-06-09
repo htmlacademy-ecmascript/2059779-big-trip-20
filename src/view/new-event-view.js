@@ -1,10 +1,8 @@
-import flatpickr from 'flatpickr';
-import he from 'he';
-import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 import { OFFER_TYPES } from '../const.js';
+import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 import { capitalizeFirstLetter } from '../utils/common.js';
 import { formatDate } from '../utils/date.js';
-
+import flatpickr from 'flatpickr';
 
 import 'flatpickr/dist/flatpickr.min.css';
 
@@ -48,12 +46,6 @@ function createDestinationsList(destinations) {
   return `<datalist id="destination-list-1">${destinationsList}</datalist>`;
 }
 
-function createDestinationPattern(destinations) {
-  const cities = destinations.map((destination) => destination.name);
-  const regex = `^(${cities.join('|')})$`;
-  return regex;
-}
-
 function createDescription(description, pictures) {
   if (description) {
     const picturesList = pictures.length === 0 ? '' :
@@ -62,7 +54,7 @@ function createDescription(description, pictures) {
     return `
       <section class="event__section  event__section--destination">
       <h3 class="event__section-title  event__section-title--destination">Destination</h3>
-        <p class="event__destination-description">${he.encode(description)}</p>
+        <p class="event__destination-description">${description}</p>
         <div class="event__photos-container">
             <div class="event__photos-tape">${picturesList}</div>
         </div>
@@ -84,7 +76,7 @@ function createEventOffersList(options, selectedOptions) {
         value="${option.id}"
         ${selectedOptions.some((selectedOption) => selectedOption === option.id) ? 'checked' : ''}>
         <label class="event__offer-label" for="${option.id}">
-          <span class="event__offer-title">${he.encode(option.title)}</span>
+          <span class="event__offer-title">${option.title}</span>
           &plus;&euro;&nbsp;
           <span class="event__offer-price">${option.price}</span>
         </label>
@@ -92,17 +84,7 @@ function createEventOffersList(options, selectedOptions) {
   return `<div class="event__available-offers">${offersList}</div>`;
 }
 
-function createToggleButton(isNewEvent) {
-  if (isNewEvent) {
-    return '';
-  } else {
-    return `<button class="event__rollup-btn" type="button">
-      <span class="visually-hidden">Open event</span>
-      </button>`;
-  }
-}
-
-function createEditEventTemplate({ state, destinations, options, isNewEvent }) {
+function createNewEventTemplate({ state, destinations, options }) {
   const { destination, type, offers, dateFrom, dateTo, basePrice } = state;
   const description = (destinations.length > 0 && destination !== null) ? destinations.find((point) => point.id === destination).description : '';
   const eventPhotos = (destinations.length > 0 && destination !== null) ? destinations.find((point) => point.id === destination).pictures : [];
@@ -124,14 +106,7 @@ function createEditEventTemplate({ state, destinations, options, isNewEvent }) {
             <label class="event__label  event__type-output" for="event-destination-1">
               ${capitalizeFirstLetter(type)}
             </label>
-            <input
-              class="event__input  event__input--destination" id="event-destination-1"
-              type="text"
-              name="event-destination"
-              list="destination-list-1"
-              value="${he.encode(destinationName)}"
-              title="Enter enlisted city"
-              pattern="${createDestinationPattern(destinations)}">
+            <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destinationName}" list="destination-list-1">
               ${destinationList}
           </div>
 
@@ -159,8 +134,10 @@ function createEditEventTemplate({ state, destinations, options, isNewEvent }) {
               </div>
 
               <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-              <button class="event__reset-btn" type="reset">${isNewEvent ? 'Cancel' : 'Delete'}</button>
-              ${createToggleButton(isNewEvent)}
+              <button class="event__reset-btn" type="reset">Cancel</button>
+              <button class="event__rollup-btn" type="button">
+                <span class="visually-hidden">Open event</span>
+              </button>
             </header>
             <section class="event__details">
               <section class="event__section  event__section--offers">
@@ -173,11 +150,10 @@ function createEditEventTemplate({ state, destinations, options, isNewEvent }) {
   );
 }
 
-export default class EditEventView extends AbstractStatefulView {
+export default class NewEventView extends AbstractStatefulView {
   #event = null;
   #destinations = null;
   #options = null;
-  #isNewEvent = null;
   #handleFormSubmit = null;
   #handleToggleClick = null;
   #handleDeleteClick = null;
@@ -185,17 +161,16 @@ export default class EditEventView extends AbstractStatefulView {
   #datePickerFrom = null;
   #datePickerTo = null;
 
-  constructor({ event = EMPTY_EVENT, destinations, options, isNewEvent, onFormSubmit, onToggleClick, onDeleteClick }) {
+  constructor({ event = EMPTY_EVENT, onFormSubmit, onToggleClick, onDeleteClick, destinations, options }) {
     super();
     this.#event = event;
     this.#destinations = destinations;
     this.#options = options;
-    this.#isNewEvent = isNewEvent;
     this.#handleFormSubmit = onFormSubmit;
     this.#handleToggleClick = onToggleClick;
     this.#handleDeleteClick = onDeleteClick;
 
-    this._setState(EditEventView.parseEventToState({event}));
+    this._setState(NewEventView.parseEventToState({ event }));
 
     this._restoreHandlers();
   }
@@ -206,7 +181,7 @@ export default class EditEventView extends AbstractStatefulView {
 
   #formSubmitHandler = (evt) => {
     evt.preventDefault();
-    this.#handleFormSubmit(EditEventView.parseStateToEvent(this._state));
+    this.#handleFormSubmit(NewEventView.parseStateToEvent(this._state));
   };
 
   #toggleClickHandler = (evt) => {
@@ -216,7 +191,7 @@ export default class EditEventView extends AbstractStatefulView {
 
   #deleteClickHandler = (evt) => {
     evt.preventDefault();
-    this.#handleDeleteClick(EditEventView.parseStateToEvent(this._state));
+    this.#handleDeleteClick(NewEventView.parseStateToEvent(this._state));
   };
 
   #typeFieldsetChangeHandler = (evt) => {
@@ -228,26 +203,6 @@ export default class EditEventView extends AbstractStatefulView {
         offers: [],
       }
     });
-  };
-
-  #destinationChangeHandler = () => {
-    const input = this.element.querySelector('.event__input--destination');
-    const selectedDestination = input.value;
-    //Как-то с неймингом здесь у меня туго.
-    const isValidDestination = this.#destinations.find((destination) => destination.name === selectedDestination);
-    if (isValidDestination) {
-      const selectedDestinationId = this.#destinations.find((destination) => destination.name === selectedDestination).id;
-
-      this.updateElement({
-        event: {
-          ...this._state.event,
-          destination: selectedDestinationId,
-        }
-      });
-    } else {
-      input.setCustomValidity('Choose a city from the list');
-      input.reportValidity();
-    }
   };
 
   #optionClickHandler = (evt) => {
@@ -269,6 +224,18 @@ export default class EditEventView extends AbstractStatefulView {
       event: {
         ...this._state.event,
         basePrice: evt.target.value,
+      }
+    });
+  };
+
+  #destinationChangeHandler = () => {
+    const selectedDestination = this.element.querySelector('.event__input--destination').value;
+    const selectedDestinationId = this.#destinations.find((destination) => destination.name === selectedDestination).id;
+
+    this.updateElement({
+      event: {
+        ...this._state.event,
+        destination: selectedDestinationId,
       }
     });
   };
@@ -300,9 +267,9 @@ export default class EditEventView extends AbstractStatefulView {
       this.element.querySelector('#event-start-time-1'), {
         dateFormat: 'd/m/y H:i',
         defaultDate: this._state.event.dateFrom,
+        enableTime: true,
         maxDate: this._state.event.dateTo,
         onClose: this.#dateFromChangeHandler,
-        enableTime: true,
         'time_24hr': true,
         locale: {
           firstDayOfWeek: 1,
@@ -314,9 +281,9 @@ export default class EditEventView extends AbstractStatefulView {
       this.element.querySelector('#event-end-time-1'), {
         dateFormat: 'd/m/y H:i',
         defaultDate: this._state.event.dateTo,
+        enableTime: true,
         minDate: this._state.event.dateFrom,
         onClose: this.#dateToChangeHandler,
-        enableTime: true,
         'time_24hr': true,
         locale: {
           firstDayOfWeek: 1,
@@ -330,11 +297,9 @@ export default class EditEventView extends AbstractStatefulView {
       .querySelector('form')
       .addEventListener('submit', this.#formSubmitHandler);
 
-    if (this.element.querySelector('.event__rollup-btn')) {
-      this.element
-        .querySelector('.event__rollup-btn')
-        .addEventListener('click', this.#toggleClickHandler);
-    }
+    this.element
+      .querySelector('.event__rollup-btn')
+      .addEventListener('click', this.#toggleClickHandler);
 
     this.element
       .querySelector('.event__reset-btn')
@@ -363,18 +328,17 @@ export default class EditEventView extends AbstractStatefulView {
   };
 
   get template() {
-    return createEditEventTemplate({
+    return createNewEventTemplate({
       event: this.#event,
       state: this._state.event,
       destinations: this.#destinations,
-      options: this.#options,
-      isNewEvent: this.#isNewEvent
+      options: this.#options
     });
   }
 
   reset(event) {
     this.updateElement(
-      EditEventView.parseEventToState(event),
+      NewEventView.parseEventToState(event),
     );
   }
 

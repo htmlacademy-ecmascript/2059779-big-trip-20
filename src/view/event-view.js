@@ -1,3 +1,4 @@
+import he from 'he';
 import AbstractView from '../framework/view/abstract-view.js';
 import { capitalizeFirstLetter } from '../utils/common.js';
 import { formatDate, getFormattedDateDiff } from '../utils/date.js';
@@ -6,7 +7,7 @@ function createEventViewOffersList(offers) {
   const offersList = offers.length === 0 ? '' :
     offers.map((offer) =>
       `<li class="event__offer">
-            <span class="event__offer-title">${offer.title}</span>
+            <span class="event__offer-title">${he.encode(offer.title)}</span>
             &plus;&euro;&nbsp;
             <span class="event__offer-price">${offer.price}</span>
       </li>`).join('');
@@ -22,7 +23,7 @@ function createEventViewTemplate(event, destinations, options) {
   const dateToDateTimeAttribute = formatDate(dateTo, 'YYYY-MM-DD');
   const startTime = formatDate(dateFrom, 'hh:mm');
   const finishTime = formatDate(dateTo, 'hh:mm');
-  const startDate = formatDate(dateTo, 'MMM DD');
+  const startDate = formatDate(dateFrom, 'MMM DD');
   const favoriteClassName = isFavorite
     ? 'event__favorite-btn event__favorite-btn--active'
     : 'event__favorite-btn';
@@ -35,7 +36,7 @@ function createEventViewTemplate(event, destinations, options) {
           <div class="event__type">
             <img class="event__type-icon" width="42" height="42" src="img/icons/${type}.png" alt="Event type icon">
           </div>
-          <h3 class="event__title">${capitalizeFirstLetter(type)} ${destinationTitle}</h3>
+          <h3 class="event__title">${capitalizeFirstLetter(type)} ${he.encode(destinationTitle)}</h3>
           <div class="event__schedule">
             <p class="event__time">
               <time class="event__start-time" datetime="${dateFromDateTimeAttribute}">${startTime}</time>

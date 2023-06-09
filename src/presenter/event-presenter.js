@@ -1,6 +1,8 @@
 import { render, remove, replace } from '../framework/render.js';
 import EventView from '../view/event-view';
 import EditEventView from '../view/edit-event-view';
+import { UserAction, UpdateType } from '../const.js';
+import { isDatesEqual } from '../utils/date.js';
 
 const Mode = {
   DEFAULT: 'DEFAULT',
@@ -44,16 +46,19 @@ export default class EventPresenter {
       onFavoriteClick: this.#handleFavoriteClick,
     });
 
-    this.#editEventComponent = new EditEventView(
-      {
-        event: this.#event,
-        onFormSubmit: this.#handleFormSubmit,
-        onToggleClick: this.#handleToggleClose,
-        onDeleteClick: this.#handleDeleteClick,
-        destinations: this.#destinations,
-        options: this.#options,
-      }
-    );
+    if (this.#mode === Mode.EDITING) {
+      this.#editEventComponent = new EditEventView(
+        {
+          event: this.#event,
+          destinations: this.#destinations,
+          options: this.#options,
+          isNewEvent: false,
+          onFormSubmit: this.#handleFormSubmit,
+          onToggleClick: this.#handleToggleClose,
+          onDeleteClick: this.#handleDeleteClick,
+        }
+      );
+    }
 
     if (prevEventComponent === null || prevEventEditComponent === null) {
       render(this.#eventComponent, this.#listComponent);
@@ -85,6 +90,16 @@ export default class EventPresenter {
   }
 
   #replaceItemToForm() {
+    this.#editEventComponent = new EditEventView(
+      {
+        event: this.#event,
+        onFormSubmit: this.#handleFormSubmit,
+        onToggleClick: this.#handleToggleClose,
+        onDeleteClick: this.#handleDeleteClick,
+        destinations: this.#destinations,
+        options: this.#options,
+      }
+    );
     replace(this.#editEventComponent, this.#eventComponent);
     document.addEventListener('keydown', this.#escKeyDownHandler);
     this.#handleModeChange();
@@ -93,6 +108,7 @@ export default class EventPresenter {
 
   #replaceFormToItem() {
     replace(this.#eventComponent, this.#editEventComponent);
+    this.#editEventComponent.removeElement();
     document.removeEventListener('keydown', this.#escKeyDownHandler);
     this.#mode = Mode.DEFAULT;
   }
@@ -110,9 +126,12 @@ export default class EventPresenter {
     }
   };
 
-  #handleFormSubmit = (event) => {
+  #handleFormSubmit = (update) => {
+    this.#handleDataUpdate(
+      UserAction.UPDATE_EVENT,
+      isDatesEqual(this.#event.dateFrom, update.dueDate) ? UpdateType.MINOR : UpdateType.PATCH,
+      update);
     this.#replaceFormToItem();
-    this.#handleDataUpdate(event);
   };
 
   #handleToggleClose = () => {
@@ -123,11 +142,18 @@ export default class EventPresenter {
     this.#replaceItemToForm();
   };
 
-  #handleDeleteClick = () => {
+  #handleDeleteClick = (event) => {
+    this.#handleDataUpdate(
+      UserAction.DELETE_EVENT,
+      UpdateType.MINOR,
+      event);
     this.#removeForm();
   };
 
   #handleFavoriteClick = () => {
-    this.#handleDataUpdate({ ...this.#event, isFavorite: !this.#event.isFavorite });
+    this.#handleDataUpdate(
+      UserAction.UPDATE_EVENT,
+      UpdateType.PATCH,
+      { ...this.#event, isFavorite: !this.#event.isFavorite });
   };
 }

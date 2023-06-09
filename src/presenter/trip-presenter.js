@@ -1,101 +1,119 @@
-import { render } from '../framework/render.js';
+import { remove, render } from '../framework/render.js';
+import { getTripTitle } from '../utils/common.js';
+import { SortType, UserAction, UpdateType, FilterType } from '../const.js';
+import { compareEventPrice, compareEventDuration } from '../utils/sort.js';
+import { filter } from '../utils/filter.js';
 import TripSortView from '../view/trip-sort-view';
 import EmptyListView from '../view/empty-list-view.js';
+import EventListView from '../view/event-list-view.js';
+import NewEventButtonView from '../view/new-event-button-view.js';
 import EventPresenter from './event-presenter.js';
 import HeaderPresenter from './header-presenter.js';
-import EventListView from '../view/event-list-view.js';
-import { updateItem } from '../utils/common.js';
-import { SortType } from '../const.js';
-import { compareEventPrice, compareEventDuration } from '../utils/sort.js';
+import FilterPresenter from './filter-presenter.js';
+import NewEventPresenter from './new-event-presenter.js';
 
 export default class TripPresenter {
   #listContainer = null;
   #headerContainer = null;
-  #eventsModel = null;
 
-  #events = null;
-  #destinations = null;
-  #offers = null;
+  #offersModel = null;
+  #eventsModel = null;
+  #destinationsModel = null;
+  #filtersModel = null;
 
   #sortComponent = null;
-  #emptyListComponent = new EmptyListView();
+  #emptyListComponent = null;
   #listComponent = new EventListView();
+  #newEventButtonComponent = new EventListView();
 
   #currentSortType = SortType.DEFAULT;
-  #initialEvents = [];
+  #filterType = FilterType.EVERYTHING;
 
   #eventPresenters = new Map();
+  #newEventPresenter = null;
 
-  constructor({ listContainer, headerContainer, destinationsModel, offersModel, eventsModel }) {
+  #isCreating = false;
+
+  constructor({ listContainer, headerContainer, eventsModel, offersModel, destinationsModel, filtersModel }) {
     this.#listContainer = listContainer;
     this.#headerContainer = headerContainer;
-    this.#events = [...eventsModel.events];
     this.#eventsModel = eventsModel;
-    this.#destinations = [...destinationsModel.destinations];
-    this.#offers = [...offersModel.offers];
+    this.#offersModel = offersModel;
+    this.#destinationsModel = destinationsModel;
+    this.#filtersModel = filtersModel;
+    this.#newEventPresenter = new NewEventPresenter({
+      destinations: this.#destinationsModel.destinations,
+      options: this.#offersModel.offers,
+      listComponent: this.#listComponent.element,
+      onDataChange: this.#handleViewAction,
+      onDestroy: this.#handleNewEventFormClose
+    });
+
+    this.#eventsModel.addObserver(this.#handleModelUpdate);
+    this.#filtersModel.addObserver(this.#handleModelUpdate);
   }
 
   init() {
-    this.#initialEvents = [...this.#eventsModel.events];
     this.#renderTripInfo();
-    this.#renderSort();
+    this.#renderFilters();
+    this.#renderNewEventButton();
     this.#renderTrip();
   }
 
+  get events() {
+    this.#filterType = this.#filtersModel.filters;
+    const events = this.#eventsModel.events;
+    const filteredEvents = filter[this.#filterType](events);
+
+    switch (this.#currentSortType) {
+      case SortType.TIME_DOWN:
+        return filteredEvents.sort(compareEventDuration);
+      case SortType.PRICE_DOWN:
+        return filteredEvents.sort(compareEventPrice);
+    }
+
+    return filteredEvents;
+  }
+
+  createEvent() {
+    this.#currentSortType = SortType.DEFAULT;
+    this.#filtersModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
+    this.#newEventPresenter.init();
+  }
+
   #renderTrip() {
-    if (this.#events.length === 0) {
+    if (this.events.length === 0 && !this.#isCreating) {
       this.#renderEmptyList();
     } else {
-      this.#renderList();
-      this.#events.forEach((event) => {
+      this.#renderSort();
+      render(this.#listComponent, this.#listContainer);
+      this.events.forEach((event) => {
         this.#renderEvent(event);
       });
     }
   }
 
+  #clearEventList({ resetSortType = false } = {}) {
+    this.#newEventPresenter.destroy();
+    this.#eventPresenters.forEach((presenter) => presenter.destroy());
+    this.#eventPresenters.clear();
+    remove(this.#sortComponent);
+
+    if (resetSortType) {
+      this.#currentSortType = SortType.DEFAULT;
+    }
+
+    if (this.#emptyListComponent) {
+      remove(this.#emptyListComponent);
+    }
+  }
+
   #renderTripInfo() {
-    //Каша какая-то, но ничего более приятного и читаемого я не придумал.
-    const getTripTitle = () => {
-      let firstDestinationTitle = 'Задайте первую точку маршрута.';
-      let middleDestinationTitle = 'Задайте вторую точку маршрута.';
-      let endDestinationTitle = '';
-      let tripTitle = 'Маршрут не составлен.';
-      switch (this.#eventsModel.events.length) {
-        case 0:
-          break;
-        case 1:
-          firstDestinationTitle = this.#destinations.find((point) => point.id === this.#eventsModel.events[0].destination).name;
-
-          tripTitle = `${firstDestinationTitle} — Добавьте конечную точку`;
-          break;
-        case 2:
-          firstDestinationTitle = this.#destinations.find((point) => point.id === this.#eventsModel.events[0].destination).name;
-          middleDestinationTitle = this.#destinations.find((point) => point.id === this.#eventsModel.events[1].destination).name;
-
-          tripTitle = `${firstDestinationTitle} — ${middleDestinationTitle}`;
-          break;
-        case 3:
-          firstDestinationTitle = this.#destinations.find((point) => point.id === this.#eventsModel.events[0].destination).name;
-          middleDestinationTitle = this.#destinations.find((point) => point.id === this.#eventsModel.events[1].destination).name;
-          endDestinationTitle = this.#destinations.find((point) => point.id === this.#eventsModel.events[2].destination).name;
-
-          tripTitle = `${firstDestinationTitle} — ${middleDestinationTitle} — ${endDestinationTitle}`;
-          break;
-        default:
-          firstDestinationTitle = this.#destinations.find((point) => point.id === this.#eventsModel.events[0].destination).name;
-          endDestinationTitle = this.#destinations.find((point) => point.id === this.#eventsModel.events[this.#events.length - 1].destination).name;
-
-          tripTitle = `${firstDestinationTitle} — … — ${endDestinationTitle}`;
-      }
-      return tripTitle;
-    };
-
     const headerPresenter = new HeaderPresenter({
       headerContainer: this.#headerContainer,
-      tripTitle: getTripTitle(),
+      tripTitle: getTripTitle(this.#eventsModel, this.#destinationsModel.destinations),
       tripDates: this.#eventsModel.getTripDates(),
       tripPrice: this.#eventsModel.getTotalPrice(),
-      events: this.#eventsModel.events,
     });
 
     headerPresenter.init();
@@ -103,26 +121,45 @@ export default class TripPresenter {
 
   #renderSort() {
     this.#sortComponent = new TripSortView({
+      currentSortType: this.#currentSortType,
       onSortTypeChange: this.#handleSortTypeChange
     });
 
     render(this.#sortComponent, this.#listContainer);
   }
 
-  #renderList() {
-    render(this.#listComponent, this.#listContainer);
+  #renderFilters() {
+    const filterPresenter = new FilterPresenter({
+      filterContainer: this.#headerContainer,
+      filtersModel: this.#filtersModel,
+      eventsModel: this.#eventsModel,
+    });
+
+    filterPresenter.init();
+  }
+
+  #renderNewEventButton() {
+    this.#newEventButtonComponent = new NewEventButtonView({
+      onClick: this.#handleNewEventButtonClick
+    });
+
+    render(this.#newEventButtonComponent, this.#headerContainer);
   }
 
   #renderEmptyList() {
+    this.#emptyListComponent = new EmptyListView({
+      filterType: this.#filterType
+    });
+
     render(this.#emptyListComponent, this.#listContainer);
   }
 
   #renderEvent(event) {
     const eventPresenter = new EventPresenter({
       listComponent: this.#listComponent.element,
-      destinations: this.#destinations,
-      options: this.#offers,
-      onDataUpdate: this.#handleEventUpdate,
+      destinations: this.#destinationsModel.destinations,
+      options: this.#offersModel.offers,
+      onDataUpdate: this.#handleViewAction,
       onModeChange: this.#handleModeChange,
     });
 
@@ -130,34 +167,39 @@ export default class TripPresenter {
     this.#eventPresenters.set(event.id, eventPresenter);
   }
 
-  #clearEventList() {
-    this.#eventPresenters.forEach((presenter) => presenter.destroy());
-    this.#eventPresenters.clear();
-  }
-
-  #sortEvents(sortType) {
-    switch (sortType) {
-      case SortType.TIME_DOWN:
-        this.#events.sort(compareEventDuration);
+  #handleViewAction = (actionType, updateType, update) => {
+    switch (actionType) {
+      case UserAction.UPDATE_EVENT:
+        this.#eventsModel.updateEvent(updateType, update);
         break;
-      case SortType.PRICE_DOWN:
-        this.#events.sort(compareEventPrice);
+      case UserAction.ADD_EVENT:
+        this.#eventsModel.addEvent(updateType, update);
         break;
-      default:
-        this.#events = [...this.#initialEvents];
+      case UserAction.DELETE_EVENT:
+        this.#eventsModel.deleteEvent(updateType, update);
+        break;
     }
-
-    this.#currentSortType = sortType;
-  }
-
-  #handleModeChange = () => {
-    this.#eventPresenters.forEach((presenter) => presenter.resetView());
   };
 
-  #handleEventUpdate = (updatedEvent) => {
-    this.#events = updateItem(this.#events, updatedEvent);
-    this.#initialEvents = updateItem(this.#initialEvents, updatedEvent);
-    this.#eventPresenters.get(updatedEvent.id).init(updatedEvent);
+  #handleModelUpdate = (updateType, data) => {
+    switch (updateType) {
+      case UpdateType.PATCH:
+        this.#eventPresenters.get(data.id).init(data);
+        break;
+      case UpdateType.MINOR:
+        this.#clearEventList();
+        this.#renderTrip();
+        break;
+      case UpdateType.MAJOR:
+        this.#clearEventList({ resetSortType: true });
+        this.#renderTrip();
+        break;
+    }
+  };
+
+  #handleModeChange = () => {
+    this.#newEventPresenter.destroy();
+    this.#eventPresenters.forEach((presenter) => presenter.resetView());
   };
 
   #handleSortTypeChange = (sortType) => {
@@ -165,8 +207,19 @@ export default class TripPresenter {
       return;
     }
 
-    this.#sortEvents(sortType);
+    this.#currentSortType = sortType;
     this.#clearEventList();
     this.#renderTrip();
+  };
+
+  #handleNewEventButtonClick = () => {
+    this.#isCreating = true;
+    this.createEvent();
+    this.#newEventButtonComponent.element.disabled = true;
+  };
+
+  #handleNewEventFormClose = () => {
+    this.#isCreating = false;
+    this.#newEventButtonComponent.element.disabled = false;
   };
 }

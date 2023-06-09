@@ -50,10 +50,15 @@ function getDateDiff(date1, date2) {
   return dayjs.duration(dayjs(date1).diff(dayjs(date2)));
 }
 
+function isDatesEqual(dateA, dateB) {
+  return (dateA === null && dateB === null) || dayjs(dateA).isSame(dateB, 'D');
+}
+
 export {
   getRandomPositiveInteger,
   getEventDates,
   formatDate,
   getFormattedDateDiff,
-  getDateDiff
+  getDateDiff,
+  isDatesEqual
 };
