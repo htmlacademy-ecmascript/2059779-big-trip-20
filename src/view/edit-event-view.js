@@ -1,8 +1,10 @@
-import { OFFER_TYPES } from '../const.js';
+import flatpickr from 'flatpickr';
+import he from 'he';
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
+import { OFFER_TYPES } from '../const.js';
 import { capitalizeFirstLetter } from '../utils/common.js';
 import { formatDate } from '../utils/date.js';
-import flatpickr from 'flatpickr';
+
 
 import 'flatpickr/dist/flatpickr.min.css';
 
@@ -60,7 +62,7 @@ function createDescription(description, pictures) {
     return `
       <section class="event__section  event__section--destination">
       <h3 class="event__section-title  event__section-title--destination">Destination</h3>
-        <p class="event__destination-description">${description}</p>
+        <p class="event__destination-description">${he.encode(description)}</p>
         <div class="event__photos-container">
             <div class="event__photos-tape">${picturesList}</div>
         </div>
@@ -82,7 +84,7 @@ function createEventOffersList(options, selectedOptions) {
         value="${option.id}"
         ${selectedOptions.some((selectedOption) => selectedOption === option.id) ? 'checked' : ''}>
         <label class="event__offer-label" for="${option.id}">
-          <span class="event__offer-title">${option.title}</span>
+          <span class="event__offer-title">${he.encode(option.title)}</span>
           &plus;&euro;&nbsp;
           <span class="event__offer-price">${option.price}</span>
         </label>
@@ -127,7 +129,7 @@ function createEditEventTemplate({ state, destinations, options, isNewEvent }) {
               type="text"
               name="event-destination"
               list="destination-list-1"
-              value="${destinationName}"
+              value="${he.encode(destinationName)}"
               title="Enter enlisted city"
               pattern="${createDestinationPattern(destinations)}">
               ${destinationList}
