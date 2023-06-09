@@ -323,8 +323,9 @@ export default class EditEventView extends AbstractStatefulView {
   }
 
   reset(event) {
-    //Здесь в демо проекте ParseToState. Но если его оставить, то при удалении ивента и раскрытии следующего выпадает ошибка. Поправил так, как было показано в ретро. Если честно, я уже запутался и не могу на данном этапе понять, что происходит и почему была ошибка.
-    this.updateElement({ event });
+    this.updateElement(
+      EditEventView.parseEventToState(event),
+    );
   }
 
   removeElement = () => {

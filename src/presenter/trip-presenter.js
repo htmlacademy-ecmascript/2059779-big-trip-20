@@ -6,7 +6,7 @@ import { filter } from '../utils/filter.js';
 import TripSortView from '../view/trip-sort-view';
 import EmptyListView from '../view/empty-list-view.js';
 import EventListView from '../view/event-list-view.js';
-import EventButtonView from '../view/new-event-button-view.js';
+import NewEventButtonView from '../view/new-event-button-view.js';
 import EventPresenter from './event-presenter.js';
 import HeaderPresenter from './header-presenter.js';
 import FilterPresenter from './filter-presenter.js';
@@ -24,6 +24,7 @@ export default class TripPresenter {
   #sortComponent = null;
   #emptyListComponent = null;
   #listComponent = new EventListView();
+  #newEventButtonComponent = new EventListView();
 
   #currentSortType = SortType.DEFAULT;
   #filterType = FilterType.EVERYTHING;
@@ -43,6 +44,7 @@ export default class TripPresenter {
       options: this.#offersModel.offers,
       listComponent: this.#listComponent.element,
       onDataChange: this.#handleViewAction,
+      onDestroy: this.#handleNewEventFormClose
     });
 
     this.#eventsModel.addObserver(this.#handleModelUpdate);
@@ -52,7 +54,7 @@ export default class TripPresenter {
   init() {
     this.#renderTripInfo();
     this.#renderFilters();
-    this.#renderAddEventButton();
+    this.#renderNewEventButton();
     this.#renderTrip();
   }
 
@@ -134,12 +136,12 @@ export default class TripPresenter {
     filterPresenter.init();
   }
 
-  #renderAddEventButton() {
-    const addEventButtonComponent = new EventButtonView({
+  #renderNewEventButton() {
+    this.#newEventButtonComponent = new NewEventButtonView({
       onClick: this.#handleNewEventButtonClick
     });
 
-    render(addEventButtonComponent, this.#headerContainer);
+    render(this.#newEventButtonComponent, this.#headerContainer);
   }
 
   #renderEmptyList() {
@@ -210,5 +212,10 @@ export default class TripPresenter {
 
   #handleNewEventButtonClick = () => {
     this.createEvent();
+    this.#newEventButtonComponent.element.disabled = true;
+  };
+
+  #handleNewEventFormClose = () => {
+    this.#newEventButtonComponent.element.disabled = false;
   };
 }

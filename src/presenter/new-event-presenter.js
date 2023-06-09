@@ -12,11 +12,12 @@ export default class NewEventPresenter {
 
   #newEventComponent = null;
 
-  constructor({ listComponent, destinations, options, onDataChange }) {
+  constructor({ listComponent, destinations, options, onDataChange, onDestroy }) {
     this.#listComponent = listComponent;
     this.#destinations = destinations;
     this.#options = options;
     this.#handleDataChange = onDataChange;
+    this.#handleDestroy = onDestroy;
   }
 
   init() {
@@ -28,7 +29,8 @@ export default class NewEventPresenter {
       destinations: this.#destinations,
       options: this.#options,
       onFormSubmit: this.#handleFormSubmit,
-      onDeleteClick: this.#handleDeleteClick
+      onDeleteClick: this.#handleDeleteClick,
+      onToggleClick: this.#handleDeleteClick
     });
 
     render(this.#newEventComponent, this.#listComponent, RenderPosition.AFTERBEGIN);
