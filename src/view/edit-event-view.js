@@ -73,9 +73,12 @@ function createDescription(description, pictures) {
 }
 
 function createEventOffersList(options, selectedOptions) {
-  const offersList = options.length === 0 ? '' :
-    options.map((option) => (/*html*/
-      `<div class="event__offer-selector">
+  if (options.length === 0) {
+    return '';
+  } else {
+    const offersList = options.length === 0 ? '' :
+      options.map((option) => (/*html*/
+        `<div class="event__offer-selector">
       <input
         class="event__offer-checkbox  visually-hidden"
         id="${option.id}"
@@ -89,7 +92,11 @@ function createEventOffersList(options, selectedOptions) {
           <span class="event__offer-price">${option.price}</span>
         </label>
     </div>`)).join('');
-  return `<div class="event__available-offers">${offersList}</div>`;
+    return `<section class="event__section  event__section--offers">
+            <h3 class="event__section-title  event__section-title--offers">Offers</h3>
+            <div class="event__available-offers">${offersList}</div>
+          </section>`;
+  }
 }
 
 function createToggleButton(isNewEvent) {
@@ -163,11 +170,9 @@ function createEditEventTemplate({ state, destinations, options, isNewEvent }) {
               ${createToggleButton(isNewEvent)}
             </header>
             <section class="event__details">
-              <section class="event__section  event__section--offers">
-                <h3 class="event__section-title  event__section-title--offers">Offers</h3>
-                ${offersList}
-              </section>
+              ${offersList}
               ${createDescription(description, eventPhotos)}
+            </section>
           </form>
         </li>`
   );
