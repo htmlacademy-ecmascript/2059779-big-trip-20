@@ -93,11 +93,12 @@ export default class EventPresenter {
     this.#editEventComponent = new EditEventView(
       {
         event: this.#event,
+        destinations: this.#destinations,
+        options: this.#options,
+        isNewEvent: false,
         onFormSubmit: this.#handleFormSubmit,
         onToggleClick: this.#handleToggleClose,
         onDeleteClick: this.#handleDeleteClick,
-        destinations: this.#destinations,
-        options: this.#options,
       }
     );
     replace(this.#editEventComponent, this.#eventComponent);
@@ -113,7 +114,6 @@ export default class EventPresenter {
     this.#mode = Mode.DEFAULT;
   }
 
-  //При закрытии ECS'ом состояние не скидывается
   #removeForm() {
     remove(this.#editEventComponent);
     document.removeEventListener('keydown', this.#escKeyDownHandler);
