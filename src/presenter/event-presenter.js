@@ -2,7 +2,7 @@ import { render, remove, replace } from '../framework/render.js';
 import EventView from '../view/event-view';
 import EditEventView from '../view/edit-event-view';
 import { UserAction, UpdateType } from '../const.js';
-import { isDatesEqual } from '../utils/date.js';
+//import { isDatesEqual } from '../utils/date.js';
 
 const Mode = {
   DEFAULT: 'DEFAULT',
@@ -46,18 +46,6 @@ export default class EventPresenter {
       onFavoriteClick: this.#handleFavoriteClick,
     });
 
-    this.#editEventComponent = new EditEventView(
-      {
-        event: this.#event,
-        destinations: this.#destinations,
-        options: this.#options,
-        isNewEvent: false,
-        onFormSubmit: this.#handleFormSubmit,
-        onToggleClick: this.#handleToggleClose,
-        onDeleteClick: this.#handleDeleteClick,
-      }
-    );
-
     if (prevEventComponent === null || prevEventEditComponent === null) {
       render(this.#eventComponent, this.#listComponent);
       return;
@@ -88,6 +76,18 @@ export default class EventPresenter {
   }
 
   #replaceItemToForm() {
+    this.#editEventComponent = new EditEventView(
+      {
+        event: this.#event,
+        destinations: this.#destinations,
+        options: this.#options,
+        isNewEvent: false,
+        onFormSubmit: this.#handleFormSubmit,
+        onToggleClick: this.#handleToggleClose,
+        onDeleteClick: this.#handleDeleteClick,
+      }
+    );
+
     replace(this.#editEventComponent, this.#eventComponent);
     document.addEventListener('keydown', this.#escKeyDownHandler);
     this.#handleModeChange();
@@ -96,6 +96,7 @@ export default class EventPresenter {
 
   #replaceFormToItem() {
     replace(this.#eventComponent, this.#editEventComponent);
+    this.#editEventComponent.removeElement();
     document.removeEventListener('keydown', this.#escKeyDownHandler);
     this.#mode = Mode.DEFAULT;
   }
@@ -116,7 +117,9 @@ export default class EventPresenter {
   #handleFormSubmit = (update) => {
     this.#handleDataUpdate(
       UserAction.UPDATE_EVENT,
-      isDatesEqual(this.#event.dateFrom, update.dueDate) ? UpdateType.MINOR : UpdateType.PATCH,
+      UpdateType.MINOR,
+      //Проверить эту функцию. Если её оставить, при сохранении элемент просто удаляется.
+      //isDatesEqual(this.#event.dateFrom, update.dueDate) ? UpdateType.MINOR : UpdateType.PATCH,
       update);
     this.#replaceFormToItem();
   };
