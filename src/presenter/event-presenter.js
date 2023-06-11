@@ -46,19 +46,17 @@ export default class EventPresenter {
       onFavoriteClick: this.#handleFavoriteClick,
     });
 
-    if (this.#mode === Mode.EDITING) {
-      this.#editEventComponent = new EditEventView(
-        {
-          event: this.#event,
-          destinations: this.#destinations,
-          options: this.#options,
-          isNewEvent: false,
-          onFormSubmit: this.#handleFormSubmit,
-          onToggleClick: this.#handleToggleClose,
-          onDeleteClick: this.#handleDeleteClick,
-        }
-      );
-    }
+    this.#editEventComponent = new EditEventView(
+      {
+        event: this.#event,
+        destinations: this.#destinations,
+        options: this.#options,
+        isNewEvent: false,
+        onFormSubmit: this.#handleFormSubmit,
+        onToggleClick: this.#handleToggleClose,
+        onDeleteClick: this.#handleDeleteClick,
+      }
+    );
 
     if (prevEventComponent === null || prevEventEditComponent === null) {
       render(this.#eventComponent, this.#listComponent);
@@ -90,17 +88,6 @@ export default class EventPresenter {
   }
 
   #replaceItemToForm() {
-    this.#editEventComponent = new EditEventView(
-      {
-        event: this.#event,
-        destinations: this.#destinations,
-        options: this.#options,
-        isNewEvent: false,
-        onFormSubmit: this.#handleFormSubmit,
-        onToggleClick: this.#handleToggleClose,
-        onDeleteClick: this.#handleDeleteClick,
-      }
-    );
     replace(this.#editEventComponent, this.#eventComponent);
     document.addEventListener('keydown', this.#escKeyDownHandler);
     this.#handleModeChange();
@@ -109,7 +96,6 @@ export default class EventPresenter {
 
   #replaceFormToItem() {
     replace(this.#eventComponent, this.#editEventComponent);
-    this.#editEventComponent.removeElement();
     document.removeEventListener('keydown', this.#escKeyDownHandler);
     this.#mode = Mode.DEFAULT;
   }
@@ -122,6 +108,7 @@ export default class EventPresenter {
   #escKeyDownHandler = (evt) => {
     if (evt.key === 'Escape') {
       evt.preventDefault();
+      this.#editEventComponent.reset(this.#event);
       this.#replaceFormToItem();
     }
   };

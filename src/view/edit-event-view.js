@@ -200,7 +200,7 @@ export default class EditEventView extends AbstractStatefulView {
     this._restoreHandlers();
   }
 
-  static parseEventToState = ({ event }) => ({ event });
+  static parseEventToState = (event) => ({...event });
 
   static parseStateToEvent = (state) => state.event;
 
@@ -230,10 +230,9 @@ export default class EditEventView extends AbstractStatefulView {
     });
   };
 
-  #destinationChangeHandler = () => {
-    const input = this.element.querySelector('.event__input--destination');
+  #destinationChangeHandler = (evt) => {
+    const input = evt.target;
     const selectedDestination = input.value;
-    //Как-то с неймингом здесь у меня туго.
     const isValidDestination = this.#destinations.find((destination) => destination.name === selectedDestination);
     if (isValidDestination) {
       const selectedDestinationId = this.#destinations.find((destination) => destination.name === selectedDestination).id;
