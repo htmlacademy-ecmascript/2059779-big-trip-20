@@ -138,6 +138,7 @@ function createEditEventTemplate({ state, destinations, options, isNewEvent }) {
               list="destination-list-1"
               value="${he.encode(destinationName)}"
               title="Enter enlisted city"
+              required
               pattern="${createDestinationPattern(destinations)}">
               ${destinationList}
           </div>
