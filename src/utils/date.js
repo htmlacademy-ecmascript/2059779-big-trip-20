@@ -54,11 +54,24 @@ function isDatesEqual(dateA, dateB) {
   return (dateA === null && dateB === null) || dayjs(dateA).isSame(dateB, 'D');
 }
 
+function compareEventDates(eventA, eventB) {
+  const eventADuration = dayjs(eventA.dateTo).diff(dayjs(eventA.dateFrom), 'minute');
+  const eventBDuration = dayjs(eventB.dateTo).diff(dayjs(eventB.dateFrom), 'minute');
+  if (eventADuration < eventBDuration) {
+    return -1;
+  } else if (eventADuration > eventBDuration) {
+    return 1;
+  } else {
+    return 0;
+  }
+}
+
 export {
   getRandomPositiveInteger,
   getEventDates,
   formatDate,
   getFormattedDateDiff,
   getDateDiff,
-  isDatesEqual
+  isDatesEqual,
+  compareEventDates
 };
