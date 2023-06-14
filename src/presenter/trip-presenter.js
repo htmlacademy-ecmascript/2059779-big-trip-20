@@ -1,7 +1,7 @@
 import { remove, render } from '../framework/render.js';
 import { getTripTitle } from '../utils/common.js';
 import { SortType, UserAction, UpdateType, FilterType } from '../const.js';
-import { compareEventPrice, compareEventDuration } from '../utils/sort.js';
+import { compareEventPrice, compareEventDuration, compareEventDate } from '../utils/sort.js';
 import { filter } from '../utils/filter.js';
 import TripSortView from '../view/trip-sort-view';
 import EmptyListView from '../view/empty-list-view.js';
@@ -66,6 +66,8 @@ export default class TripPresenter {
     const filteredEvents = filter[this.#filterType](events);
 
     switch (this.#currentSortType) {
+      case SortType.DEFAULT:
+        return filteredEvents.sort(compareEventDate);
       case SortType.TIME_DOWN:
         return filteredEvents.sort(compareEventDuration);
       case SortType.PRICE_DOWN:
