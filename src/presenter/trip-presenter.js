@@ -49,15 +49,8 @@ export default class TripPresenter {
     this.#offersModel = offersModel;
     this.#destinationsModel = destinationsModel;
     this.#filtersModel = filtersModel;
-    this.#newEventPresenter = new NewEventPresenter({
-      destinations: this.#destinationsModel.destinations,
-      options: this.#offersModel.offers,
-      listComponent: this.#listComponent.element,
-      onDataChange: this.#handleViewAction,
-      onDestroy: this.#handleNewEventFormClose
-    });
-
     this.#eventsModel.addObserver(this.#handleModelUpdate);
+    this.#eventsModel.addObserver(this.#createNewPresenter);
     this.#filtersModel.addObserver(this.#handleModelUpdate);
   }
 
@@ -90,6 +83,18 @@ export default class TripPresenter {
     this.#filtersModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
     this.#newEventPresenter.init();
   }
+
+  #createNewPresenter = (updateType) => {
+    if (updateType === UpdateType.INIT) {
+      this.#newEventPresenter = new NewEventPresenter({
+        destinations: this.#destinationsModel.destinations,
+        options: this.#offersModel.offers,
+        listComponent: this.#listComponent.element,
+        onDataChange: this.#handleViewAction,
+        onDestroy: this.#handleNewEventFormClose
+      });
+    }
+  };
 
   #renderTrip() {
     if (this.#isLoading) {
