@@ -1,8 +1,9 @@
 import { remove, render } from '../framework/render.js';
 import { getTripTitle } from '../utils/common.js';
 import { SortType, UserAction, UpdateType, FilterType } from '../const.js';
-import { compareEventPrice, compareEventDuration } from '../utils/sort.js';
+import { compareEventPrice, compareEventDuration, compareEventDate } from '../utils/sort.js';
 import { filter } from '../utils/filter.js';
+import LoadingView from '../view/loading-view.js';
 import TripSortView from '../view/trip-sort-view';
 import EmptyListView from '../view/empty-list-view.js';
 import EventListView from '../view/event-list-view.js';
@@ -25,6 +26,7 @@ export default class TripPresenter {
   #emptyListComponent = null;
   #listComponent = new EventListView();
   #newEventButtonComponent = new EventListView();
+  #loadingComponent = new LoadingView();
 
   #currentSortType = SortType.DEFAULT;
   #filterType = FilterType.EVERYTHING;
@@ -33,6 +35,7 @@ export default class TripPresenter {
   #newEventPresenter = null;
 
   #isCreating = false;
+  #isLoading = true;
 
   constructor({ listContainer, headerContainer, eventsModel, offersModel, destinationsModel, filtersModel }) {
     this.#listContainer = listContainer;
@@ -66,6 +69,8 @@ export default class TripPresenter {
     const filteredEvents = filter[this.#filterType](events);
 
     switch (this.#currentSortType) {
+      case SortType.DEFAULT:
+        return filteredEvents.sort(compareEventDate);
       case SortType.TIME_DOWN:
         return filteredEvents.sort(compareEventDuration);
       case SortType.PRICE_DOWN:
@@ -82,6 +87,11 @@ export default class TripPresenter {
   }
 
   #renderTrip() {
+    if (this.#isLoading) {
+      this.#renderLoading();
+      return;
+    }
+
     if (this.events.length === 0 && !this.#isCreating) {
       this.#renderEmptyList();
     } else {
@@ -98,6 +108,7 @@ export default class TripPresenter {
     this.#eventPresenters.forEach((presenter) => presenter.destroy());
     this.#eventPresenters.clear();
     remove(this.#sortComponent);
+    remove(this.#loadingComponent);
 
     if (resetSortType) {
       this.#currentSortType = SortType.DEFAULT;
@@ -146,6 +157,10 @@ export default class TripPresenter {
     render(this.#newEventButtonComponent, this.#headerContainer);
   }
 
+  #renderLoading() {
+    render(this.#loadingComponent, this.#listContainer);
+  }
+
   #renderEmptyList() {
     this.#emptyListComponent = new EmptyListView({
       filterType: this.#filterType
@@ -192,6 +207,11 @@ export default class TripPresenter {
         break;
       case UpdateType.MAJOR:
         this.#clearEventList({ resetSortType: true });
+        this.#renderTrip();
+        break;
+      case UpdateType.INIT:
+        this.#isLoading = false;
+        remove(this.#loadingComponent);
         this.#renderTrip();
         break;
     }

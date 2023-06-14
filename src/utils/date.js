@@ -60,5 +60,5 @@ export {
   formatDate,
   getFormattedDateDiff,
   getDateDiff,
-  isDatesEqual
+  isDatesEqual,
 };

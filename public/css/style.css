@@ -540,6 +540,8 @@ main {
     background-image: url("../img/icons/hyperloop.png"); }
   .event__type-label--street-fight::before {
     background-image: url("../img/icons/street-fight.png"); }
+  .event__type-label--restaurant::before {
+    background-image: url("../img/icons/restaurant.png"); }
   .event__type-label:hover {
     color: #ffd054; }
 

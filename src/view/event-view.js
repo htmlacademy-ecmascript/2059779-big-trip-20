@@ -4,14 +4,18 @@ import { capitalizeFirstLetter } from '../utils/common.js';
 import { formatDate, getFormattedDateDiff } from '../utils/date.js';
 
 function createEventViewOffersList(offers) {
-  const offersList = offers.length === 0 ? '' :
-    offers.map((offer) =>
+  if (offers.length === 0) {
+    return '';
+  } else {
+    const offersList = offers.map((offer) =>
       `<li class="event__offer">
             <span class="event__offer-title">${he.encode(offer.title)}</span>
             &plus;&euro;&nbsp;
             <span class="event__offer-price">${offer.price}</span>
       </li>`).join('');
-  return `<ul class="event__selected-offers">${offersList}</ul>`;
+    return `<h4 class="visually-hidden">Offers:</h4>
+          <ul class="event__selected-offers">${offersList}</ul>`;
+  }
 }
 
 function createEventViewTemplate(event, destinations, options) {
@@ -48,7 +52,6 @@ function createEventViewTemplate(event, destinations, options) {
           <p class="event__price">
             &euro;&nbsp;<span class="event__price-value">${basePrice}</span>
           </p>
-          <h4 class="visually-hidden">Offers:</h4>
             ${createEventViewOffersList(selectedOptions)}
           <button class="${favoriteClassName}" type="button">
             <span class="visually-hidden">Add to favorite</span>

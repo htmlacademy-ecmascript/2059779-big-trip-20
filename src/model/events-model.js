@@ -1,33 +1,56 @@
 import Observable from '../framework/observable.js';
+import { UpdateType } from '../const.js';
 
 export default class EventsModel extends Observable {
   #service = null;
-  #events = null;
+  #offersModel = null;
+  #destinationsModel = null;
+  #events = [];
 
-  constructor(service) {
+  constructor({ service, offersModel, destinationsModel }) {
     super();
     this.#service = service;
-    this.#events = this.#service.getEvents();
+    this.#offersModel = offersModel;
+    this.#destinationsModel = destinationsModel;
+  }
+
+  async init() {
+    try {
+      await Promise.all([
+        this.#destinationsModel.init(),
+        this.#offersModel.init()
+      ]);
+      const events = await this.#service.getEvents();
+      this.#events = events.map(this.#adaptToClient);
+      this._notify(UpdateType.INIT);
+    } catch (err) {
+      this.#events = [];
+    }
   }
 
   get events() {
     return this.#events;
   }
 
-  updateEvent(updateType, update) {
+  async updateEvent(updateType, update) {
     const index = this.#events.findIndex((events) => events.id === update.id);
 
     if (index === -1) {
       throw new Error('Can\'t update unexisting events');
     }
 
-    this.#events = [
-      ...this.#events.slice(0, index),
-      update,
-      ...this.#events.slice(index + 1),
-    ];
-
-    this._notify(updateType, update);
+    try {
+      const response = await this.#service.updateEvent(update);
+      const updatedEvent = this.#adaptToClient(response);
+      this.#events = [
+        ...this.#events.slice(0, index),
+        update,
+        ...this.#events.slice(index + 1),
+      ];
+      this._notify(updateType, updatedEvent);
+    } catch (err) {
+      throw new Error('Can\'t update event');
+    }
   }
 
   addEvent(updateType, update) {
@@ -81,5 +104,22 @@ export default class EventsModel extends Observable {
       startDate,
       finishDate
     };
+  }
+
+  #adaptToClient(event) {
+    const adaptedEvent = {
+      ...event,
+      dateFrom: event['date_from'] !== null ? new Date(event['date_from']) : event['date_from'],
+      dateTo: event['date_to'] !== null ? new Date(event['date_to']) : event['date_to'],
+      basePrice: event['base_price'],
+      isFavorite: event['is_favorite'],
+    };
+
+    delete adaptedEvent['date_from'];
+    delete adaptedEvent['date_to'];
+    delete adaptedEvent['base_price'];
+    delete adaptedEvent['is_favorite'];
+
+    return adaptedEvent;
   }
 }
