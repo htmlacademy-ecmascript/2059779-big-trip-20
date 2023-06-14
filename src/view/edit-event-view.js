@@ -114,7 +114,7 @@ function createToggleButton(isNewEvent) {
 }
 
 function createEditEventTemplate({ state, destinations, options, isNewEvent }) {
-  const { destination, type, offers, dateFrom, dateTo, basePrice, isDisabled, isSaving, isDeleting } = state;
+  const { destination, type, offers, dateFrom, dateTo, basePrice, isDisabled, isSaving } = state;
   const description = (destinations.length > 0 && destination !== null) ? destinations.find((point) => point.id === destination).description : '';
   const eventPhotos = (destinations.length > 0 && destination !== null) ? destinations.find((point) => point.id === destination).pictures : [];
   const destinationName = (destinations.length > 0 && destination !== null) ? destinations.find((point) => point.id === destination).name : '';
