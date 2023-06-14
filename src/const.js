@@ -43,7 +43,7 @@ const UpdateType = {
   INIT: 'INIT'
 };
 
-const AUTHORIZATION = 'Basic 3149fqw021d';
+const AUTHORIZATION = 'Basic 3149fdqw021d';
 
 const END_POINT = 'https://20.ecmascript.pages.academy/big-trip';
 
@@ -60,6 +60,11 @@ const SourceUrl = {
   DESTINATIONS: 'destinations'
 };
 
+const TimeLimit = {
+  LOWER_LIMIT: 350,
+  UPPER_LIMIT: 1000,
+};
+
 export {
   OFFER_TYPES,
   FilterType,
@@ -71,5 +76,6 @@ export {
   AUTHORIZATION,
   END_POINT,
   Method,
-  SourceUrl
+  SourceUrl,
+  TimeLimit
 };

@@ -19,7 +19,7 @@ const EMPTY_EVENT = {
   type: OFFER_TYPES[0],
 };
 
-function createTypesSelectList(offerTypes, eventType) {
+function createTypesSelectList(offerTypes, eventType, isDisabled) {
   const offerType = (offerTypes.length === 0) ? '' :
     offerTypes.map((type) =>
       `<div class="event__type-item">
@@ -32,7 +32,10 @@ function createTypesSelectList(offerTypes, eventType) {
         <span class="visually-hidden">Choose event type</span>
           <img class="event__type-icon" width="17" height="17" src="img/icons/${eventType}.png" alt="Event type icon">
       </label>
-      <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox">
+      <input
+        class="event__type-toggle  visually-hidden" id="event-type-toggle-1"
+        type="checkbox"
+        ${isDisabled ? 'disabled' : ''}>
       <div class="event__type-list">
         <fieldset class="event__type-group">
           <legend class="visually-hidden">Event type</legend>
@@ -72,7 +75,7 @@ function createDescription(description, pictures) {
   }
 }
 
-function createEventOffersList(options, selectedOptions) {
+function createEventOffersList(options, selectedOptions, isDisabled) {
   if (options.length === 0) {
     return '';
   } else {
@@ -85,6 +88,7 @@ function createEventOffersList(options, selectedOptions) {
         type="checkbox"
         name="event-offer-luggage"
         value="${option.id}"
+        ${isDisabled ? 'disabled' : ''}
         ${selectedOptions.some((selectedOption) => selectedOption === option.id) ? 'checked' : ''}>
         <label class="event__offer-label" for="${option.id}">
           <span class="event__offer-title">${he.encode(option.title)}</span>
@@ -110,7 +114,7 @@ function createToggleButton(isNewEvent) {
 }
 
 function createEditEventTemplate({ state, destinations, options, isNewEvent }) {
-  const { destination, type, offers, dateFrom, dateTo, basePrice } = state;
+  const { destination, type, offers, dateFrom, dateTo, basePrice, isDisabled, isSaving, isDeleting } = state;
   const description = (destinations.length > 0 && destination !== null) ? destinations.find((point) => point.id === destination).description : '';
   const eventPhotos = (destinations.length > 0 && destination !== null) ? destinations.find((point) => point.id === destination).pictures : [];
   const destinationName = (destinations.length > 0 && destination !== null) ? destinations.find((point) => point.id === destination).name : '';
@@ -139,16 +143,26 @@ function createEditEventTemplate({ state, destinations, options, isNewEvent }) {
               value="${he.encode(destinationName)}"
               title="Enter enlisted city"
               required
+              ${isDisabled ? 'disabled' : ''}
               pattern="${createDestinationPattern(destinations)}">
               ${destinationList}
           </div>
 
           <div class="event__field-group  event__field-group--time">
             <label class="visually-hidden" for="event-start-time-1">From</label>
-            <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${timeFrom}">
+            <input
+              class="event__input  event__input--time" id="event-start-time-1"
+              type="text" name="event-start-time"
+              ${isDisabled ? 'disabled' : ''}
+              value="${timeFrom}">
               &mdash;
               <label class="visually-hidden" for="event-end-time-1">To</label>
-              <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${timeTo}">
+              <input
+                class="event__input  event__input--time" id="event-end-time-1"
+                type="text"
+                name="event-end-time"
+                ${isDisabled ? 'disabled' : ''}
+                value="${timeTo}">
               </div>
 
               <div class="event__field-group  event__field-group--price">
@@ -163,10 +177,12 @@ function createEditEventTemplate({ state, destinations, options, isNewEvent }) {
                   name="event-price"
                   value="${eventPrice}"
                   pattern="[1-9]\\d*"
+                  required
+                  ${isDisabled ? 'disabled' : ''}
                   title="Enter a positive integer">
               </div>
 
-              <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
+              <button class="event__save-btn  btn  btn--blue" type="submit">${isSaving ? 'Saving...' : 'Save'}</button>
               <button class="event__reset-btn" type="reset">${isNewEvent ? 'Cancel' : 'Delete'}</button>
               ${createToggleButton(isNewEvent)}
             </header>
@@ -206,9 +222,20 @@ export default class EditEventView extends AbstractStatefulView {
     this._restoreHandlers();
   }
 
-  static parseEventToState = (event) => ({...event });
+  static parseEventToState = (event) => ({
+    ...event,
+    isDisabled: false,
+    isSaving: false,
+    isDeleting: false,
+  });
 
-  static parseStateToEvent = (state) => state.event;
+  static parseStateToEvent = (state) => {
+    delete state.isDisabled;
+    delete state.isSaving;
+    delete state.isDeleting;
+
+    return state.event;
+  };
 
   #formSubmitHandler = (evt) => {
     evt.preventDefault();

@@ -57,6 +57,7 @@ export default class EventPresenter {
 
     if (this.#mode === Mode.EDITING) {
       replace(this.#editEventComponent, prevEventEditComponent);
+      this.#mode = Mode.DEFAULT;
     }
 
     remove(prevEventComponent);
@@ -73,6 +74,41 @@ export default class EventPresenter {
       this.#editEventComponent.reset(this.#event);
       this.#replaceFormToItem();
     }
+  }
+
+  setSaving() {
+    if (this.#mode === Mode.EDITING) {
+      this.#editEventComponent.updateElement({
+        isDisabled: true,
+        isSaving: true,
+      });
+    }
+  }
+
+  setDeleting() {
+    if (this.#mode === Mode.EDITING) {
+      this.#editEventComponent.updateElement({
+        isDisabled: true,
+        isDeleting: true,
+      });
+    }
+  }
+
+  setAborting() {
+    if (this.#mode === Mode.DEFAULT) {
+      this.#eventComponent.shake();
+      return;
+    }
+
+    const resetFormState = () => {
+      this.#editEventComponent.updateElement({
+        isDisabled: false,
+        isSaving: false,
+        isDeleting: false,
+      });
+    };
+
+    this.#editEventComponent.shake(resetFormState);
   }
 
   #replaceItemToForm() {
@@ -121,7 +157,6 @@ export default class EventPresenter {
       //Проверить эту функцию. Если её оставить, при сохранении элемент просто удаляется.
       //isDatesEqual(this.#event.dateFrom, update.dueDate) ? UpdateType.MINOR : UpdateType.PATCH,
       update);
-    this.#replaceFormToItem();
   };
 
   #handleToggleClose = () => {
@@ -143,7 +178,7 @@ export default class EventPresenter {
   #handleFavoriteClick = () => {
     this.#handleDataUpdate(
       UserAction.UPDATE_EVENT,
-      UpdateType.PATCH,
+      UpdateType.MINOR,
       { ...this.#event, isFavorite: !this.#event.isFavorite });
   };
 }

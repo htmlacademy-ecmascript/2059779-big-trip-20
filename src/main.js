@@ -28,5 +28,5 @@ const tripPresenter = new TripPresenter({
   filtersModel
 });
 
-tripPresenter.init();
 eventsModel.init();
+tripPresenter.init();

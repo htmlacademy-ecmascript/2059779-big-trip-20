@@ -52,13 +52,31 @@ export default class NewEventPresenter {
     document.removeEventListener('keydown', this.#escKeyDownHandler);
   }
 
+  setSaving() {
+    this.#newEventComponent.updateElement({
+      isDisabled: true,
+      isSaving: true,
+    });
+  }
+
+  setAborting() {
+    const resetFormState = () => {
+      this.#newEventComponent.updateElement({
+        isDisabled: false,
+        isSaving: false,
+        isDeleting: false,
+      });
+    };
+
+    this.#newEventComponent.shake(resetFormState);
+  }
+
   #handleFormSubmit = (event) => {
     this.#handleDataChange(
       UserAction.ADD_EVENT,
       UpdateType.MINOR,
-      { ...event, id: crypto.randomUUID() },
+      event,
     );
-    this.destroy();
   };
 
   #handleDeleteClick = () => {
