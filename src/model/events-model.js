@@ -6,6 +6,7 @@ export default class EventsModel extends Observable {
   #offersModel = null;
   #destinationsModel = null;
   #events = [];
+  #destinations = [];
 
   constructor({ service, offersModel, destinationsModel }) {
     super();
@@ -18,12 +19,17 @@ export default class EventsModel extends Observable {
     return this.#events;
   }
 
+  get destinations() {
+    return this.#destinations;
+  }
+
   async init() {
     try {
       await Promise.all([
         this.#destinationsModel.init(),
         this.#offersModel.init()
       ]);
+      this.#destinations = await this.#destinationsModel.destinations;
       const events = await this.#service.getEvents();
       this.#events = events.map(this.#adaptToClient);
       this._notify(UpdateType.INIT);
@@ -110,6 +116,42 @@ export default class EventsModel extends Observable {
       startDate,
       finishDate
     };
+  }
+
+  getTripTitle() {
+    let firstDestinationTitle = 'Set the first waypoint.';
+    let middleDestinationTitle = 'Set the second waypoint.';
+    let endDestinationTitle = '';
+    let tripTitle = 'Route not set.';
+    switch (this.#events.length) {
+      case 0:
+        break;
+      case 1:
+        firstDestinationTitle = this.#destinations.find((point) => point.id === this.#events[0].destination).name;
+
+        tripTitle = `${firstDestinationTitle} — Add an endpoint`;
+        break;
+      case 2:
+        firstDestinationTitle = this.#destinations.find((point) => point.id === this.#events[0].destination).name;
+        middleDestinationTitle = this.#destinations.find((point) => point.id === this.#events[1].destination).name;
+
+        tripTitle = `${firstDestinationTitle} — ${middleDestinationTitle}`;
+        break;
+      case 3:
+        firstDestinationTitle = this.#destinations.find((point) => point.id === this.#events[0].destination).name;
+        middleDestinationTitle = this.#destinations.find((point) => point.id === this.#events[1].destination).name;
+        endDestinationTitle = this.#destinations.find((point) => point.id === this.#events[2].destination).name;
+
+        tripTitle = `${firstDestinationTitle} — ${middleDestinationTitle} — ${endDestinationTitle}`;
+        break;
+      default:
+        firstDestinationTitle = this.#destinations.find((point) => point.id === this.#events[0].destination).name;
+        endDestinationTitle = this.#destinations.find((point) => point.id === this.#events[this.#events.length - 1].destination).name;
+
+        tripTitle = `${firstDestinationTitle} — … — ${endDestinationTitle}`;
+    }
+
+    return tripTitle;
   }
 
   #adaptToClient(event) {

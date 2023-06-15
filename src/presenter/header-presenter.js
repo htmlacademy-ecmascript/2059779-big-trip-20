@@ -1,5 +1,5 @@
 import TripInfoView from '../view/trip-info-view.js';
-import { render } from '../framework/render';
+import { render, RenderPosition } from '../framework/render';
 
 export default class HeaderPresenter {
   #headerContainer = null;
@@ -24,6 +24,6 @@ export default class HeaderPresenter {
       tripTitle: this.#tripTitle,
       tripDates: this.#tripDates,
       totalPrice: this.#tripPrice,
-    }), this.#headerContainer);
+    }), this.#headerContainer, RenderPosition.AFTERBEGIN);
   }
 }

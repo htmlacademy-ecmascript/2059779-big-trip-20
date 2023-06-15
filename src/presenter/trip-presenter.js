@@ -1,5 +1,5 @@
 import { remove, render } from '../framework/render.js';
-import UiBlocker from '../framework/ui-blocker/ui-blocker.js'; import { getTripTitle } from '../utils/common.js';
+import UiBlocker from '../framework/ui-blocker/ui-blocker.js';
 import { SortType, UserAction, UpdateType, FilterType, TimeLimit } from '../const.js';
 import { compareEventPrice, compareEventDuration, compareEventDate } from '../utils/sort.js';
 import { filter } from '../utils/filter.js';
@@ -51,6 +51,7 @@ export default class TripPresenter {
     this.#filtersModel = filtersModel;
     this.#eventsModel.addObserver(this.#modelUpdateHandler);
     this.#eventsModel.addObserver(this.#createNewPresenter);
+    this.#eventsModel.addObserver(this.#createHeaderPresenter);
     this.#filtersModel.addObserver(this.#modelUpdateHandler);
   }
 
@@ -72,7 +73,7 @@ export default class TripPresenter {
   }
 
   init() {
-    this.#renderTripListInfo();
+    //this.#renderTripListInfo();
     this.#renderFilters();
     this.#renderNewEventButton();
     this.#renderTripList();
@@ -93,6 +94,18 @@ export default class TripPresenter {
         onDataChange: this.#viewActionHandler,
         onDestroy: this.#newEventFormCloseHandler
       });
+    }
+  };
+
+  #createHeaderPresenter = (updateType) => {
+    if (updateType === UpdateType.INIT) {
+      const headerPresenter = new HeaderPresenter({
+        headerContainer: this.#headerContainer,
+        tripTitle: this.#eventsModel.getTripTitle(),
+        tripDates: this.#eventsModel.getTripDates(),
+        tripPrice: this.#eventsModel.getTotalPrice(),
+      });
+      headerPresenter.init();
     }
   };
 
@@ -129,16 +142,17 @@ export default class TripPresenter {
     }
   }
 
-  #renderTripListInfo() {
-    const headerPresenter = new HeaderPresenter({
-      headerContainer: this.#headerContainer,
-      tripTitle: getTripTitle(this.#eventsModel, this.#destinationsModel.destinations),
-      tripDates: this.#eventsModel.getTripDates(),
-      tripPrice: this.#eventsModel.getTotalPrice(),
-    });
-
-    headerPresenter.init();
-  }
+  /*   #renderTripListInfo() {
+    if (updateType === UpdateType.INIT) {
+      const headerPresenter = new HeaderPresenter({
+        headerContainer: this.#headerContainer,
+        tripTitle: this.#eventsModel.getTripTitle(),
+        tripDates: this.#eventsModel.getTripDates(),
+        tripPrice: this.#eventsModel.getTotalPrice(),
+      });
+      headerPresenter.init();
+    }
+  } */
 
   #renderEmptyList() {
     this.#emptyListComponent = new EmptyListView({
