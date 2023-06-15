@@ -223,7 +223,7 @@ export default class EditEventView extends AbstractStatefulView {
     this.#handleToggleClick = onToggleClick;
     this.#handleDeleteClick = onDeleteClick;
 
-    this._setState(EditEventView.parseEventToState({event}));
+    this._setState(EditEventView.parseEventToState(event));
 
     this._restoreHandlers();
   }
@@ -231,7 +231,7 @@ export default class EditEventView extends AbstractStatefulView {
   get template() {
     return createEditEventTemplate({
       event: this.#event,
-      state: this._state.event,
+      state: this._state,
       destinations: this.#destinations,
       options: this.#options,
       isNewEvent: this.#isNewEvent
@@ -310,8 +310,8 @@ export default class EditEventView extends AbstractStatefulView {
     this.#datePickerFrom = flatpickr(
       inputFrom, {
         dateFormat: 'd/m/y H:i',
-        defaultDate: this._state.event.dateFrom,
-        maxDate: this._state.event.dateTo,
+        defaultDate: this._state.dateFrom,
+        maxDate: this._state.dateTo,
         onClose: this.#dateFromChangeHandler,
         enableTime: true,
         'time_24hr': true,
@@ -323,8 +323,8 @@ export default class EditEventView extends AbstractStatefulView {
     this.#datePickerTo = flatpickr(
       inputTo, {
         dateFormat: 'd/m/y H:i',
-        defaultDate: this._state.event.dateTo,
-        minDate: this._state.event.dateFrom,
+        defaultDate: this._state.dateTo,
+        minDate: this._state.dateFrom,
         onClose: this.#dateToChangeHandler,
         enableTime: true,
         'time_24hr': true,
@@ -356,11 +356,9 @@ export default class EditEventView extends AbstractStatefulView {
   #typeFieldsetChangeHandler = (evt) => {
     evt.preventDefault();
     this.updateElement({
-      event: {
-        ...this._state.event,
-        type: evt.target.value,
-        offers: [],
-      }
+      ...this._state,
+      type: evt.target.value,
+      offers: [],
     });
   };
 
@@ -372,10 +370,8 @@ export default class EditEventView extends AbstractStatefulView {
       const selectedDestinationId = this.#destinations.find((destination) => destination.name === selectedDestination).id;
 
       this.updateElement({
-        event: {
-          ...this._state.event,
-          destination: selectedDestinationId,
-        }
+        ...this._state,
+        destination: selectedDestinationId,
       });
     } else {
       input.setCustomValidity('Choose a city from the list');
@@ -388,10 +384,8 @@ export default class EditEventView extends AbstractStatefulView {
     const selectedOptions = Array.from(this.element.querySelectorAll('.event__offer-checkbox:checked'));
 
     this._setState({
-      event: {
-        ...this._state.event,
-        offers: selectedOptions.map((option) => option.value)
-      }
+      ...this._state,
+      offers: selectedOptions.map((option) => option.value)
     });
   };
 
@@ -399,33 +393,27 @@ export default class EditEventView extends AbstractStatefulView {
     evt.preventDefault();
 
     this._setState({
-      event: {
-        ...this._state.event,
-        basePrice: Number(evt.target.value),
-      }
+      ...this._state,
+      basePrice: Number(evt.target.value),
     });
   };
 
   #dateToChangeHandler = ([userDate]) => {
     this._setState({
-      event: {
-        ...this._state.event,
-        dateTo: userDate
-      }
+      ...this._state,
+      dateTo: userDate
     });
 
-    this.#datePickerFrom.set('maxDate', this._state.event.dateTo);
+    this.#datePickerFrom.set('maxDate', this._state.dateTo);
   };
 
   #dateFromChangeHandler = ([userDate]) => {
     this._setState({
-      event: {
-        ...this._state.event,
-        dateFrom: userDate
-      }
+      ...this._state,
+      dateFrom: userDate
     });
 
-    this.#datePickerTo.set('minDate', this._state.event.dateFrom);
+    this.#datePickerTo.set('minDate', this._state.dateFrom);
   };
 
   static parseEventToState = (event) => ({
@@ -436,10 +424,11 @@ export default class EditEventView extends AbstractStatefulView {
   });
 
   static parseStateToEvent = (state) => {
-    delete state.isDisabled;
-    delete state.isSaving;
-    delete state.isDeleting;
+    const event = { ...state };
+    delete event.isDisabled;
+    delete event.isSaving;
+    delete event.isDeleting;
 
-    return state.event;
+    return event;
   };
 }
