@@ -5,14 +5,13 @@ import { OFFER_TYPES } from '../const.js';
 import { capitalizeFirstLetter } from '../utils/common.js';
 import { formatDate } from '../utils/date.js';
 
-
 import 'flatpickr/dist/flatpickr.min.css';
 
 const EMPTY_EVENT = {
   id: 0,
   basePrice: 0,
-  dateFrom: new Date().toISOString(),
-  dateTo: new Date().toISOString(),
+  dateFrom: null,
+  dateTo: null,
   destination: null,
   isFavorite: false,
   offers: [],
@@ -120,8 +119,8 @@ function createEditEventTemplate({ state, destinations, options, isNewEvent }) {
   const destinationName = (destinations.length > 0 && destination !== null) ? destinations.find((point) => point.id === destination).name : '';
   const destinationList = createDestinationsList(destinations);
   const eventPrice = basePrice;
-  const timeFrom = formatDate(dateFrom, 'DD/MM/YY hh:mm');
-  const timeTo = formatDate(dateTo, 'DD/MM/YY hh:mm');
+  const timeFrom = formatDate(dateFrom, 'DD/MM/YY HH:mm');
+  const timeTo = formatDate(dateTo, 'DD/MM/YY HH:mm');
   const optionsByType = options.find((option) => option.type === type).offers;
   const offersList = createEventOffersList(optionsByType, offers);
   const offerTypes = OFFER_TYPES;
@@ -151,47 +150,52 @@ function createEditEventTemplate({ state, destinations, options, isNewEvent }) {
           <div class="event__field-group  event__field-group--time">
             <label class="visually-hidden" for="event-start-time-1">From</label>
             <input
-              class="event__input  event__input--time" id="event-start-time-1"
-              type="text" name="event-start-time"
+              class="event__input  event__input--time"
+              id="event-start-time-1"
+              type="text"
+              name="event-start-time"
+              required
               ${isDisabled ? 'disabled' : ''}
               value="${timeFrom}">
               &mdash;
-              <label class="visually-hidden" for="event-end-time-1">To</label>
-              <input
-                class="event__input  event__input--time" id="event-end-time-1"
-                type="text"
-                name="event-end-time"
-                ${isDisabled ? 'disabled' : ''}
-                value="${timeTo}">
-              </div>
+            <label class="visually-hidden" for="event-end-time-1">To</label>
+            <input
+              class="event__input  event__input--time"
+              id="event-end-time-1"
+              type="text"
+              name="event-end-time"
+              required
+              ${isDisabled ? 'disabled' : ''}
+              value="${timeTo}">
+          </div>
 
-              <div class="event__field-group  event__field-group--price">
-                <label class="event__label" for="event-price-1">
-                  <span class="visually-hidden">Price</span>
-                  &euro;
-                </label>
-                <input
-                  class="event__input  event__input--price"
-                  id="event-price-1"
-                  type="text"
-                  name="event-price"
-                  value="${eventPrice}"
-                  pattern="[1-9]\\d*"
-                  required
-                  ${isDisabled ? 'disabled' : ''}
-                  title="Enter a positive integer">
-              </div>
+          <div class="event__field-group  event__field-group--price">
+            <label class="event__label" for="event-price-1">
+              <span class="visually-hidden">Price</span>
+              &euro;
+            </label>
+            <input
+              class="event__input  event__input--price"
+              id="event-price-1"
+              type="text"
+              name="event-price"
+              value="${eventPrice}"
+              pattern="[1-9]\\d*"
+              required
+              ${isDisabled ? 'disabled' : ''}
+              title="Enter a positive integer">
+          </div>
 
-              <button class="event__save-btn  btn  btn--blue" type="submit">${isSaving ? 'Saving...' : 'Save'}</button>
-              <button class="event__reset-btn" type="reset">${isNewEvent ? 'Cancel' : 'Delete'}</button>
-              ${createToggleButton(isNewEvent)}
-            </header>
-            <section class="event__details">
-              ${offersList}
-              ${createDescription(description, eventPhotos)}
-            </section>
-          </form>
-        </li>`
+          <button class="event__save-btn  btn  btn--blue" type="submit">${isSaving ? 'Saving...' : 'Save'}</button>
+          <button class="event__reset-btn" type="reset">${isNewEvent ? 'Cancel' : 'Delete'}</button>
+          ${createToggleButton(isNewEvent)}
+        </header>
+        <section class="event__details">
+          ${offersList}
+          ${createDescription(description, eventPhotos)}
+        </section>
+      </form>
+    </li>`
   );
 }
 
@@ -206,6 +210,8 @@ export default class EditEventView extends AbstractStatefulView {
 
   #datePickerFrom = null;
   #datePickerTo = null;
+
+  #isValid = false;
 
   constructor({ event = EMPTY_EVENT, destinations, options, isNewEvent, onFormSubmit, onToggleClick, onDeleteClick }) {
     super();
@@ -222,24 +228,119 @@ export default class EditEventView extends AbstractStatefulView {
     this._restoreHandlers();
   }
 
-  static parseEventToState = (event) => ({
-    ...event,
-    isDisabled: false,
-    isSaving: false,
-    isDeleting: false,
-  });
+  get template() {
+    return createEditEventTemplate({
+      event: this.#event,
+      state: this._state.event,
+      destinations: this.#destinations,
+      options: this.#options,
+      isNewEvent: this.#isNewEvent
+    });
+  }
 
-  static parseStateToEvent = (state) => {
-    delete state.isDisabled;
-    delete state.isSaving;
-    delete state.isDeleting;
+  _restoreHandlers = () => {
+    this.element
+      .querySelector('form')
+      .addEventListener('submit', this.#formSubmitHandler);
 
-    return state.event;
+    if (this.element.querySelector('.event__rollup-btn')) {
+      this.element
+        .querySelector('.event__rollup-btn')
+        .addEventListener('click', this.#toggleClickHandler);
+    }
+
+    this.element
+      .querySelector('.event__reset-btn')
+      .addEventListener('click', this.#deleteClickHandler);
+
+    this.element
+      .querySelector('.event__type-group')
+      .addEventListener('change', this.#typeFieldsetChangeHandler);
+
+    this.element
+      .querySelector('.event__input--price')
+      .addEventListener('input', this.#priceChangeHandler);
+
+    this.element
+      .querySelector('.event__input--destination')
+      .addEventListener('change', this.#destinationChangeHandler);
+
+    const optionsContainer = this.element.querySelector('.event__available-offers');
+
+    if (optionsContainer) {
+      optionsContainer.addEventListener('change', this.#optionClickHandler);
+    }
+
+    this.element
+      .querySelector('#event-start-time-1')
+      .addEventListener('focus', this.#setDatePickers);
+
+    this.element
+      .querySelector('#event-end-time-1')
+      .addEventListener('focus', this.#setDatePickers);
+  };
+
+  reset(event) {
+    this.updateElement(
+      EditEventView.parseEventToState(event),
+    );
+  }
+
+  removeElement = () => {
+    super.removeElement();
+
+    if (this.#datePickerFrom) {
+      this.#datePickerFrom.destroy();
+      this.#datePickerFrom = null;
+    }
+
+    if (this.#datePickerTo) {
+      this.#datePickerTo.destroy();
+      this.#datePickerTo = null;
+    }
+  };
+
+  //Поменять название, если останется в качестве обработчика
+  #setDatePickers = () => {
+    const inputFrom = this.element.querySelector('#event-start-time-1');
+    const inputTo = this.element.querySelector('#event-end-time-1');
+    inputFrom.value = new Date().toISOString();
+    inputTo.value = new Date().toISOString();
+    this.#isValid = true;
+    this.#datePickerFrom = flatpickr(
+      inputFrom, {
+        dateFormat: 'd/m/y H:i',
+        defaultDate: this._state.event.dateFrom,
+        maxDate: this._state.event.dateTo,
+        onClose: this.#dateFromChangeHandler,
+        enableTime: true,
+        'time_24hr': true,
+        locale: {
+          firstDayOfWeek: 1,
+        }
+      });
+
+    this.#datePickerTo = flatpickr(
+      inputTo, {
+        dateFormat: 'd/m/y H:i',
+        defaultDate: this._state.event.dateTo,
+        minDate: this._state.event.dateFrom,
+        onClose: this.#dateToChangeHandler,
+        enableTime: true,
+        'time_24hr': true,
+        locale: {
+          firstDayOfWeek: 1,
+        }
+      });
   };
 
   #formSubmitHandler = (evt) => {
     evt.preventDefault();
     this.#handleFormSubmit(EditEventView.parseStateToEvent(this._state));
+    /*     if (this.#isValid) {
+      this.#handleFormSubmit(EditEventView.parseStateToEvent(this._state));
+    } */
+
   };
 
   #toggleClickHandler = (evt) => {
@@ -300,7 +401,7 @@ export default class EditEventView extends AbstractStatefulView {
     this._setState({
       event: {
         ...this._state.event,
-        basePrice: evt.target.value,
+        basePrice: Number(evt.target.value),
       }
     });
   };
@@ -327,100 +428,18 @@ export default class EditEventView extends AbstractStatefulView {
     this.#datePickerTo.set('minDate', this._state.event.dateFrom);
   };
 
-  #setDatePickers = () => {
-    this.#datePickerFrom = flatpickr(
-      this.element.querySelector('#event-start-time-1'), {
-        dateFormat: 'd/m/y H:i',
-        defaultDate: this._state.event.dateFrom,
-        maxDate: this._state.event.dateTo,
-        onClose: this.#dateFromChangeHandler,
-        enableTime: true,
-        'time_24hr': true,
-        locale: {
-          firstDayOfWeek: 1,
-        }
-      }
-    );
+  static parseEventToState = (event) => ({
+    ...event,
+    isDisabled: false,
+    isSaving: false,
+    isDeleting: false,
+  });
 
-    this.#datePickerTo = flatpickr(
-      this.element.querySelector('#event-end-time-1'), {
-        dateFormat: 'd/m/y H:i',
-        defaultDate: this._state.event.dateTo,
-        minDate: this._state.event.dateFrom,
-        onClose: this.#dateToChangeHandler,
-        enableTime: true,
-        'time_24hr': true,
-        locale: {
-          firstDayOfWeek: 1,
-        }
-      }
-    );
-  };
+  static parseStateToEvent = (state) => {
+    delete state.isDisabled;
+    delete state.isSaving;
+    delete state.isDeleting;
 
-  _restoreHandlers = () => {
-    this.element
-      .querySelector('form')
-      .addEventListener('submit', this.#formSubmitHandler);
-
-    if (this.element.querySelector('.event__rollup-btn')) {
-      this.element
-        .querySelector('.event__rollup-btn')
-        .addEventListener('click', this.#toggleClickHandler);
-    }
-
-    this.element
-      .querySelector('.event__reset-btn')
-      .addEventListener('click', this.#deleteClickHandler);
-
-    this.element
-      .querySelector('.event__type-group')
-      .addEventListener('change', this.#typeFieldsetChangeHandler);
-
-    this.element
-      .querySelector('.event__input--price')
-      .addEventListener('input', this.#priceChangeHandler);
-
-    this.element
-      .querySelector('.event__input--destination')
-      .addEventListener('change', this.#destinationChangeHandler);
-
-    const optionsContainer = this.element.querySelector('.event__available-offers');
-
-    if (optionsContainer) {
-      optionsContainer.addEventListener('change', this.#optionClickHandler);
-    }
-
-    this.#setDatePickers();
-
-  };
-
-  get template() {
-    return createEditEventTemplate({
-      event: this.#event,
-      state: this._state.event,
-      destinations: this.#destinations,
-      options: this.#options,
-      isNewEvent: this.#isNewEvent
-    });
-  }
-
-  reset(event) {
-    this.updateElement(
-      EditEventView.parseEventToState(event),
-    );
-  }
-
-  removeElement = () => {
-    super.removeElement();
-
-    if (this.#datePickerFrom) {
-      this.#datePickerFrom.destroy();
-      this.#datePickerFrom = null;
-    }
-
-    if (this.#datePickerTo) {
-      this.#datePickerTo.destroy();
-      this.#datePickerTo = null;
-    }
+    return state.event;
   };
 }

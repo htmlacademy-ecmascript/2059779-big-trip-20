@@ -15,8 +15,8 @@ export default class FilterPresenter {
     this.#filtersModel = filtersModel;
     this.#eventsModel = eventsModel;
 
-    this.#eventsModel.addObserver(this.#handleModelUpdate);
-    this.#filtersModel.addObserver(this.#handleModelUpdate);
+    this.#eventsModel.addObserver(this.#modelUpdateHandler);
+    this.#filtersModel.addObserver(this.#modelUpdateHandler);
   }
 
   get filters() {
@@ -35,7 +35,7 @@ export default class FilterPresenter {
     this.#filterComponent = new TripFiltersView({
       filters,
       currentFilterType: this.#filtersModel.filter,
-      onFilterTypeChange: this.#handleFilterTypeChange
+      onFilterTypeChange: this.#filterTypeChangeHandler
     });
 
     if (prevFilterComponent === null) {
@@ -47,11 +47,11 @@ export default class FilterPresenter {
     remove(prevFilterComponent);
   }
 
-  #handleModelUpdate = () => {
+  #modelUpdateHandler = () => {
     this.init();
   };
 
-  #handleFilterTypeChange = (filterType) => {
+  #filterTypeChangeHandler = (filterType) => {
     if (this.#filtersModel.filter === filterType) {
       return;
     }

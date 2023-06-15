@@ -42,8 +42,8 @@ export default class EventPresenter {
       event: this.#event,
       destinations: this.#destinations,
       options: this.#options,
-      onEditClick: this.#handleToggleOpen,
-      onFavoriteClick: this.#handleFavoriteClick,
+      onEditClick: this.#toggleOpenHandler,
+      onFavoriteClick: this.#favoriteClickHandler,
     });
 
     if (prevEventComponent === null || prevEventEditComponent === null) {
@@ -118,9 +118,9 @@ export default class EventPresenter {
         destinations: this.#destinations,
         options: this.#options,
         isNewEvent: false,
-        onFormSubmit: this.#handleFormSubmit,
-        onToggleClick: this.#handleToggleClose,
-        onDeleteClick: this.#handleDeleteClick,
+        onFormSubmit: this.#formSubmitHandler,
+        onToggleClick: this.#toggleCloseHandler,
+        onDeleteClick: this.#deleteClickHandler,
       }
     );
 
@@ -137,11 +137,6 @@ export default class EventPresenter {
     this.#mode = Mode.DEFAULT;
   }
 
-  #removeForm() {
-    remove(this.#editEventComponent);
-    document.removeEventListener('keydown', this.#escKeyDownHandler);
-  }
-
   #escKeyDownHandler = (evt) => {
     if (evt.key === 'Escape') {
       evt.preventDefault();
@@ -150,32 +145,31 @@ export default class EventPresenter {
     }
   };
 
-  #handleFormSubmit = (update) => {
+  #formSubmitHandler = (update) => {
     this.#handleDataUpdate(
       UserAction.UPDATE_EVENT,
       UpdateType.MINOR,
-      //Проверить эту функцию. Если её оставить, при сохранении элемент просто удаляется.
-      //isDatesEqual(this.#event.dateFrom, update.dueDate) ? UpdateType.MINOR : UpdateType.PATCH,
+      //Проверить эту функцию. Если её оставить, при сохранении с новой датой элемент из Вью просто удаляется.
+      //isDatesEqual(this.#event.dateFrom, update.dateFrom) ? UpdateType.MINOR : UpdateType.PATCH,
       update);
   };
 
-  #handleToggleClose = () => {
+  #toggleCloseHandler = () => {
     this.#replaceFormToItem();
   };
 
-  #handleToggleOpen = () => {
+  #toggleOpenHandler = () => {
     this.#replaceItemToForm();
   };
 
-  #handleDeleteClick = (event) => {
+  #deleteClickHandler = (event) => {
     this.#handleDataUpdate(
       UserAction.DELETE_EVENT,
       UpdateType.MINOR,
       event);
-    this.#removeForm();
   };
 
-  #handleFavoriteClick = () => {
+  #favoriteClickHandler = () => {
     this.#handleDataUpdate(
       UserAction.UPDATE_EVENT,
       UpdateType.MINOR,

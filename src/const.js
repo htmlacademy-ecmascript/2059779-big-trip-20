@@ -23,13 +23,6 @@ const SortType = {
   PRICE_DOWN: 'price-down',
 };
 
-const PriceRange = {
-  MIN: 200,
-  MAX: 9000,
-};
-
-const MOCKS_COUNT = 6;
-
 const UserAction = {
   UPDATE_EVENT: 'UPDATE_EVENT',
   ADD_EVENT: 'ADD_EVENT',
@@ -43,7 +36,7 @@ const UpdateType = {
   INIT: 'INIT'
 };
 
-const AUTHORIZATION = 'Basic 3149fdqw021d';
+const AUTHORIZATION = 'Basic 3939fdqw021d';
 
 const END_POINT = 'https://20.ecmascript.pages.academy/big-trip';
 
@@ -65,11 +58,10 @@ const TimeLimit = {
   UPPER_LIMIT: 1000,
 };
 
+
 export {
   OFFER_TYPES,
   FilterType,
-  PriceRange,
-  MOCKS_COUNT,
   SortType,
   UserAction,
   UpdateType,

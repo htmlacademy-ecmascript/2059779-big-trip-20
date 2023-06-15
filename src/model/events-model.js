@@ -14,6 +14,10 @@ export default class EventsModel extends Observable {
     this.#destinationsModel = destinationsModel;
   }
 
+  get events() {
+    return this.#events;
+  }
+
   async init() {
     try {
       await Promise.all([
@@ -23,13 +27,9 @@ export default class EventsModel extends Observable {
       const events = await this.#service.getEvents();
       this.#events = events.map(this.#adaptToClient);
       this._notify(UpdateType.INIT);
-    } catch (err) {
+    } catch(err) {
       this.#events = [];
     }
-  }
-
-  get events() {
-    return this.#events;
   }
 
   async updateEvent(updateType, update) {
@@ -48,7 +48,7 @@ export default class EventsModel extends Observable {
         ...this.#events.slice(index + 1),
       ];
       this._notify(updateType, updatedEvent);
-    } catch (err) {
+    } catch(err) {
       throw new Error('Can\'t update event');
     }
   }
@@ -59,7 +59,7 @@ export default class EventsModel extends Observable {
       const newEvent = this.#adaptToClient(response);
       this.#events = [newEvent, ...this.#events];
       this._notify(updateType, newEvent);
-    } catch (err) {
+    } catch(err) {
       throw new Error('Can\'t add event');
     }
   }

@@ -29,9 +29,9 @@ export default class NewEventPresenter {
       destinations: this.#destinations,
       options: this.#options,
       isNewEvent: true,
-      onFormSubmit: this.#handleFormSubmit,
-      onDeleteClick: this.#handleDeleteClick,
-      onToggleClick: this.#handleDeleteClick
+      onFormSubmit: this.#formSubmitHandler,
+      onDeleteClick: this.#deleteClickHandler,
+      onToggleClick: this.#deleteClickHandler
     });
 
     render(this.#newEventComponent, this.#listComponent, RenderPosition.AFTERBEGIN);
@@ -71,7 +71,7 @@ export default class NewEventPresenter {
     this.#newEventComponent.shake(resetFormState);
   }
 
-  #handleFormSubmit = (event) => {
+  #formSubmitHandler = (event) => {
     this.#handleDataChange(
       UserAction.ADD_EVENT,
       UpdateType.MINOR,
@@ -79,7 +79,7 @@ export default class NewEventPresenter {
     );
   };
 
-  #handleDeleteClick = () => {
+  #deleteClickHandler = () => {
     this.destroy();
   };
 

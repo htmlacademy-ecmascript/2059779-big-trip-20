@@ -6,15 +6,15 @@ export default class OffersModel {
     this.#service = service;
   }
 
+  get offers() {
+    return this.#offers;
+  }
+
   async init() {
     try {
       this.#offers = await this.#service.getOffers();
-    } catch (err) {
+    } catch(err) {
       this.#offers = [];
     }
-  }
-
-  get offers() {
-    return this.#offers;
   }
 }
