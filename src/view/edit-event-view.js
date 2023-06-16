@@ -32,7 +32,8 @@ function createTypesSelectList(offerTypes, eventType, isDisabled) {
           <img class="event__type-icon" width="17" height="17" src="img/icons/${eventType}.png" alt="Event type icon">
       </label>
       <input
-        class="event__type-toggle  visually-hidden" id="event-type-toggle-1"
+        class="event__type-toggle  visually-hidden"
+        id="event-type-toggle-1"
         type="checkbox"
         ${isDisabled ? 'disabled' : ''}>
       <div class="event__type-list">
@@ -112,8 +113,18 @@ function createToggleButton(isNewEvent) {
   }
 }
 
+function createCancelButtonText(isNewEvent, isDeleting) {
+  if (isNewEvent) {
+    return 'Cancel';
+  } else if (isDeleting) {
+    return 'Deleting...';
+  } else {
+    return 'Delete';
+  }
+}
+
 function createEditEventTemplate({ state, destinations, options, isNewEvent }) {
-  const { destination, type, offers, dateFrom, dateTo, basePrice, isDisabled, isSaving } = state;
+  const { destination, type, offers, dateFrom, dateTo, basePrice, isDisabled, isSaving, isDeleting } = state;
   const description = (destinations.length > 0 && destination !== null) ? destinations.find((point) => point.id === destination).description : '';
   const eventPhotos = (destinations.length > 0 && destination !== null) ? destinations.find((point) => point.id === destination).pictures : [];
   const destinationName = (destinations.length > 0 && destination !== null) ? destinations.find((point) => point.id === destination).name : '';
@@ -189,7 +200,7 @@ function createEditEventTemplate({ state, destinations, options, isNewEvent }) {
           </div>
 
           <button class="event__save-btn  btn  btn--blue" type="submit">${isSaving ? 'Saving...' : 'Save'}</button>
-          <button class="event__reset-btn" type="reset">${isNewEvent ? 'Cancel' : 'Delete'}</button>
+          <button class="event__reset-btn" type="reset">${createCancelButtonText(isNewEvent, isDeleting)}</button>
           ${createToggleButton(isNewEvent)}
         </header>
         <section class="event__details">
