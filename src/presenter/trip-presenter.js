@@ -49,8 +49,8 @@ export default class TripPresenter {
     this.#tripModel = tripModel;
     this.#filtersModel = filtersModel;
     this.#tripModel.addObserver(this.#modelUpdateHandler);
-    this.#tripModel.addObserver(this.#createNewPresenter);
-    this.#tripModel.addObserver(this.#createHeaderPresenter);
+    this.#tripModel.addObserver(this.#newPresenterUpdateHandler);
+    this.#tripModel.addObserver(this.#modelUpdateHeaderHandler);
     this.#filtersModel.addObserver(this.#modelUpdateHandler);
   }
 
@@ -80,7 +80,6 @@ export default class TripPresenter {
   }
 
   init() {
-    this.#createHeaderPresenter();
     this.#renderFilters();
     this.#renderNewEventButton();
     this.#renderTripList();
@@ -92,7 +91,7 @@ export default class TripPresenter {
     this.#newEventPresenter.init();
   }
 
-  #createNewPresenter = (updateType) => {
+  #newPresenterUpdateHandler = (updateType) => {
     if (updateType === UpdateType.INIT) {
       this.#newEventPresenter = new NewEventPresenter({
         destinations: this.destinations,
@@ -104,17 +103,19 @@ export default class TripPresenter {
     }
   };
 
-  #createHeaderPresenter = (updateType) => {
-    if (updateType === UpdateType.INIT) {
-      this.#headerPresenter = new HeaderPresenter({
-        headerContainer: this.#headerContainer,
-        tripTitle: this.#tripModel.getTripTitle(),
-        tripDates: this.#tripModel.getTripDates(),
-        tripPrice: this.#tripModel.getTotalPrice(),
-      });
-      this.#headerPresenter.init();
-    }
-  };
+  #clearHeader() {
+    this.#headerPresenter.destroy();
+  }
+
+  #renderHeader() {
+    this.#headerPresenter = new HeaderPresenter({
+      headerContainer: this.#headerContainer,
+      tripTitle: this.#tripModel.getTripTitle(),
+      tripDates: this.#tripModel.getTripDates(),
+      tripPrice: this.#tripModel.getTotalPrice(),
+    });
+    this.#headerPresenter.init();
+  }
 
   #renderLoading() {
     render(this.#loadingComponent, this.#listContainer);
@@ -155,20 +156,6 @@ export default class TripPresenter {
     if (this.#emptyListComponent) {
       remove(this.#emptyListComponent);
     }
-  }
-
-  #clearHeader() {
-    this.#headerPresenter.destroy();
-  }
-
-  #renderHeader() {
-    this.#headerPresenter = new HeaderPresenter({
-      headerContainer: this.#headerContainer,
-      tripTitle: this.#tripModel.getTripTitle(),
-      tripDates: this.#tripModel.getTripDates(),
-      tripPrice: this.#tripModel.getTotalPrice(),
-    });
-    this.#headerPresenter.init();
   }
 
   #renderEmptyList() {
@@ -256,14 +243,10 @@ export default class TripPresenter {
         this.#eventPresenters.get(data.id).init(data);
         break;
       case UpdateType.MINOR:
-        this.#clearHeader();
-        this.#renderHeader();
         this.#clearEventList();
         this.#renderTripList();
         break;
       case UpdateType.MAJOR:
-        this.#clearHeader();
-        this.#renderHeader();
         this.#clearEventList({ resetSortType: true });
         this.#renderTripList();
         break;
@@ -279,6 +262,13 @@ export default class TripPresenter {
         this.#renderError();
         break;
     }
+  };
+
+  #modelUpdateHeaderHandler = () => {
+    if (this.#headerPresenter) {
+      this.#clearHeader();
+    }
+    this.#renderHeader();
   };
 
   #modeChangeHandler = () => {
