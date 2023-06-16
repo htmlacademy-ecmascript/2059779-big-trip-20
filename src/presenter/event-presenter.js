@@ -55,10 +55,10 @@ export default class EventPresenter {
       replace(this.#eventComponent, prevEventComponent);
     }
 
-    if (this.#mode === Mode.EDITING) {
+    /*     if (this.#mode === Mode.EDITING) {
       replace(this.#editEventComponent, prevEventEditComponent);
       this.#mode = Mode.DEFAULT;
-    }
+    } */
 
     remove(prevEventComponent);
     remove(prevEventEditComponent);
