@@ -25,8 +25,8 @@ function createEventViewTemplate(event, destinations, options) {
   const dayDateTimeAttribute = formatDate(dateFrom, 'YYYY-MM-DD');
   const dateFromDateTimeAttribute = formatDate(dateFrom, 'YYYY-MM-DD');
   const dateToDateTimeAttribute = formatDate(dateTo, 'YYYY-MM-DD');
-  const startTime = formatDate(dateFrom, 'hh:mm');
-  const finishTime = formatDate(dateTo, 'hh:mm');
+  const startTime = formatDate(dateFrom, 'HH:mm');
+  const finishTime = formatDate(dateTo, 'HH:mm');
   const startDate = formatDate(dateFrom, 'MMM DD');
   const favoriteClassName = isFavorite
     ? 'event__favorite-btn event__favorite-btn--active'
@@ -95,7 +95,6 @@ export default class EventView extends AbstractView {
     this.#handleEditClick();
   };
 
-  //Не совсем понимаю, должна ли быть эта логика во View, а если нет, то как её передать. То есть я понимаю, что можно параметрами, но выглядит как-то избыточно. А ещё в макете фокус на кнопках неудачно оформлен.
   #favoriteClickHandler = (evt) => {
     evt.preventDefault();
     this.#handleFavoriteClick();

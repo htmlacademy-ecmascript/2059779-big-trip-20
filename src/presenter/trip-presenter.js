@@ -1,6 +1,6 @@
 import { remove, render } from '../framework/render.js';
-import { getTripTitle } from '../utils/common.js';
-import { SortType, UserAction, UpdateType, FilterType } from '../const.js';
+import UiBlocker from '../framework/ui-blocker/ui-blocker.js';
+import { SortType, UserAction, UpdateType, FilterType, TimeLimit } from '../const.js';
 import { compareEventPrice, compareEventDuration, compareEventDate } from '../utils/sort.js';
 import { filter } from '../utils/filter.js';
 import LoadingView from '../view/loading-view.js';
@@ -8,6 +8,7 @@ import TripSortView from '../view/trip-sort-view';
 import EmptyListView from '../view/empty-list-view.js';
 import EventListView from '../view/event-list-view.js';
 import NewEventButtonView from '../view/new-event-button-view.js';
+import ErrorView from '../view/error-view.js';
 import EventPresenter from './event-presenter.js';
 import HeaderPresenter from './header-presenter.js';
 import FilterPresenter from './filter-presenter.js';
@@ -17,16 +18,15 @@ export default class TripPresenter {
   #listContainer = null;
   #headerContainer = null;
 
-  #offersModel = null;
-  #eventsModel = null;
-  #destinationsModel = null;
+  #tripModel = null;
   #filtersModel = null;
 
   #sortComponent = null;
   #emptyListComponent = null;
   #listComponent = new EventListView();
-  #newEventButtonComponent = new EventListView();
+  #newEventButtonComponent = null;
   #loadingComponent = new LoadingView();
+  #errorComponent = new ErrorView();
 
   #currentSortType = SortType.DEFAULT;
   #filterType = FilterType.EVERYTHING;
@@ -37,35 +37,25 @@ export default class TripPresenter {
   #isCreating = false;
   #isLoading = true;
 
-  constructor({ listContainer, headerContainer, eventsModel, offersModel, destinationsModel, filtersModel }) {
+  #uiBlocker = new UiBlocker({
+    lowerLimit: TimeLimit.LOWER_LIMIT,
+    upperLimit: TimeLimit.UPPER_LIMIT
+  });
+
+  constructor({ listContainer, headerContainer, tripModel, filtersModel }) {
     this.#listContainer = listContainer;
     this.#headerContainer = headerContainer;
-    this.#eventsModel = eventsModel;
-    this.#offersModel = offersModel;
-    this.#destinationsModel = destinationsModel;
+    this.#tripModel = tripModel;
     this.#filtersModel = filtersModel;
-    this.#newEventPresenter = new NewEventPresenter({
-      destinations: this.#destinationsModel.destinations,
-      options: this.#offersModel.offers,
-      listComponent: this.#listComponent.element,
-      onDataChange: this.#handleViewAction,
-      onDestroy: this.#handleNewEventFormClose
-    });
-
-    this.#eventsModel.addObserver(this.#handleModelUpdate);
-    this.#filtersModel.addObserver(this.#handleModelUpdate);
-  }
-
-  init() {
-    this.#renderTripInfo();
-    this.#renderFilters();
-    this.#renderNewEventButton();
-    this.#renderTrip();
+    this.#tripModel.addObserver(this.#modelUpdateHandler);
+    this.#tripModel.addObserver(this.#createNewPresenter);
+    this.#tripModel.addObserver(this.#createHeaderPresenter);
+    this.#filtersModel.addObserver(this.#modelUpdateHandler);
   }
 
   get events() {
     this.#filterType = this.#filtersModel.filters;
-    const events = this.#eventsModel.events;
+    const events = this.#tripModel.events;
     const filteredEvents = filter[this.#filterType](events);
 
     switch (this.#currentSortType) {
@@ -80,13 +70,60 @@ export default class TripPresenter {
     return filteredEvents;
   }
 
+  get offers() {
+    return this.#tripModel.offers;
+  }
+
+  get destinations() {
+    return this.#tripModel.destinations;
+  }
+
+  init() {
+    //this.#renderTripListInfo();
+    this.#renderFilters();
+    this.#renderNewEventButton();
+    this.#renderTripList();
+  }
+
   createEvent() {
     this.#currentSortType = SortType.DEFAULT;
     this.#filtersModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
     this.#newEventPresenter.init();
   }
 
-  #renderTrip() {
+  #createNewPresenter = (updateType) => {
+    if (updateType === UpdateType.INIT) {
+      this.#newEventPresenter = new NewEventPresenter({
+        destinations: this.destinations,
+        options: this.offers,
+        listComponent: this.#listComponent.element,
+        onDataChange: this.#viewActionHandler,
+        onDestroy: this.#newEventFormCloseHandler
+      });
+    }
+  };
+
+  #createHeaderPresenter = (updateType) => {
+    if (updateType === UpdateType.INIT) {
+      const headerPresenter = new HeaderPresenter({
+        headerContainer: this.#headerContainer,
+        tripTitle: this.#tripModel.getTripTitle(),
+        tripDates: this.#tripModel.getTripDates(),
+        tripPrice: this.#tripModel.getTotalPrice(),
+      });
+      headerPresenter.init();
+    }
+  };
+
+  #renderLoading() {
+    render(this.#loadingComponent, this.#listContainer);
+  }
+
+  #renderError() {
+    render(this.#errorComponent, this.#listContainer);
+  }
+
+  #renderTripList() {
     if (this.#isLoading) {
       this.#renderLoading();
       return;
@@ -119,47 +156,17 @@ export default class TripPresenter {
     }
   }
 
-  #renderTripInfo() {
-    const headerPresenter = new HeaderPresenter({
-      headerContainer: this.#headerContainer,
-      tripTitle: getTripTitle(this.#eventsModel, this.#destinationsModel.destinations),
-      tripDates: this.#eventsModel.getTripDates(),
-      tripPrice: this.#eventsModel.getTotalPrice(),
-    });
-
-    headerPresenter.init();
-  }
-
-  #renderSort() {
-    this.#sortComponent = new TripSortView({
-      currentSortType: this.#currentSortType,
-      onSortTypeChange: this.#handleSortTypeChange
-    });
-
-    render(this.#sortComponent, this.#listContainer);
-  }
-
-  #renderFilters() {
-    const filterPresenter = new FilterPresenter({
-      filterContainer: this.#headerContainer,
-      filtersModel: this.#filtersModel,
-      eventsModel: this.#eventsModel,
-    });
-
-    filterPresenter.init();
-  }
-
-  #renderNewEventButton() {
-    this.#newEventButtonComponent = new NewEventButtonView({
-      onClick: this.#handleNewEventButtonClick
-    });
-
-    render(this.#newEventButtonComponent, this.#headerContainer);
-  }
-
-  #renderLoading() {
-    render(this.#loadingComponent, this.#listContainer);
-  }
+  /*   #renderTripListInfo() {
+    if (updateType === UpdateType.INIT) {
+      const headerPresenter = new HeaderPresenter({
+        headerContainer: this.#headerContainer,
+        tripTitle: this.#tripModel.getTripTitle(),
+        tripDates: this.#tripModel.getTripDates(),
+        tripPrice: this.#tripModel.getTotalPrice(),
+      });
+      headerPresenter.init();
+    }
+  } */
 
   #renderEmptyList() {
     this.#emptyListComponent = new EmptyListView({
@@ -169,76 +176,126 @@ export default class TripPresenter {
     render(this.#emptyListComponent, this.#listContainer);
   }
 
+  #renderSort() {
+    this.#sortComponent = new TripSortView({
+      currentSortType: this.#currentSortType,
+      onSortTypeChange: this.#sortTypeChangeHandler
+    });
+
+    render(this.#sortComponent, this.#listContainer);
+  }
+
+  #renderFilters() {
+    const filterPresenter = new FilterPresenter({
+      filterContainer: this.#headerContainer,
+      filtersModel: this.#filtersModel,
+      tripModel: this.#tripModel,
+    });
+
+    filterPresenter.init();
+  }
+
+  #renderNewEventButton() {
+    this.#newEventButtonComponent = new NewEventButtonView({
+      onClick: this.#newEventButtonClickHandler
+    });
+
+    render(this.#newEventButtonComponent, this.#headerContainer);
+  }
+
   #renderEvent(event) {
     const eventPresenter = new EventPresenter({
       listComponent: this.#listComponent.element,
-      destinations: this.#destinationsModel.destinations,
-      options: this.#offersModel.offers,
-      onDataUpdate: this.#handleViewAction,
-      onModeChange: this.#handleModeChange,
+      destinations: this.destinations,
+      options: this.offers,
+      onDataUpdate: this.#viewActionHandler,
+      onModeChange: this.#modeChangeHandler,
     });
 
     eventPresenter.init(event);
     this.#eventPresenters.set(event.id, eventPresenter);
   }
 
-  #handleViewAction = (actionType, updateType, update) => {
+  #viewActionHandler = async (actionType, updateType, update) => {
+    this.#uiBlocker.block();
     switch (actionType) {
       case UserAction.UPDATE_EVENT:
-        this.#eventsModel.updateEvent(updateType, update);
+        this.#eventPresenters.get(update.id).setSaving();
+        try {
+          await this.#tripModel.updateEvent(updateType, update);
+        } catch(err) {
+          this.#eventPresenters.get(update.id).setAborting();
+        }
         break;
       case UserAction.ADD_EVENT:
-        this.#eventsModel.addEvent(updateType, update);
+        this.#newEventPresenter.setSaving();
+        try {
+          await this.#tripModel.addEvent(updateType, update);
+        } catch(err) {
+          this.#newEventPresenter.setAborting();
+        }
         break;
       case UserAction.DELETE_EVENT:
-        this.#eventsModel.deleteEvent(updateType, update);
+        this.#eventPresenters.get(update.id).setDeleting();
+        try {
+          await this.#tripModel.deleteEvent(updateType, update);
+        } catch {
+          this.#eventPresenters.get(update.id).setAborting();
+        }
         break;
     }
+    this.#uiBlocker.unblock();
   };
 
-  #handleModelUpdate = (updateType, data) => {
+  #modelUpdateHandler = (updateType, data) => {
     switch (updateType) {
       case UpdateType.PATCH:
         this.#eventPresenters.get(data.id).init(data);
         break;
       case UpdateType.MINOR:
         this.#clearEventList();
-        this.#renderTrip();
+        this.#renderTripList();
         break;
       case UpdateType.MAJOR:
         this.#clearEventList({ resetSortType: true });
-        this.#renderTrip();
+        this.#renderTripList();
         break;
       case UpdateType.INIT:
         this.#isLoading = false;
         remove(this.#loadingComponent);
-        this.#renderTrip();
+        this.#renderTripList();
+        break;
+      case UpdateType.ERROR:
+        this.#isLoading = false;
+        remove(this.#loadingComponent);
+        remove(this.#newEventButtonComponent);
+        this.#renderError();
         break;
     }
   };
 
-  #handleModeChange = () => {
+  #modeChangeHandler = () => {
     this.#newEventPresenter.destroy();
     this.#eventPresenters.forEach((presenter) => presenter.resetView());
   };
 
-  #handleSortTypeChange = (sortType) => {
+  #sortTypeChangeHandler = (sortType) => {
     if (this.#currentSortType === sortType) {
       return;
     }
 
     this.#currentSortType = sortType;
     this.#clearEventList();
-    this.#renderTrip();
+    this.#renderTripList();
   };
 
-  #handleNewEventButtonClick = () => {
+  #newEventButtonClickHandler = () => {
     this.#isCreating = true;
     this.createEvent();
     this.#newEventButtonComponent.element.disabled = true;
   };
 
-  #handleNewEventFormClose = () => {
+  #newEventFormCloseHandler = () => {
     this.#isCreating = false;
     this.#newEventButtonComponent.element.disabled = false;
   };

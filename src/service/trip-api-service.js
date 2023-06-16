@@ -49,9 +49,7 @@ export default class TripApiService extends ApiService {
       method: Method.DELETE,
     });
 
-    const parsedResponse = await ApiService.parseResponse(response);
-
-    return parsedResponse;
+    return response;
   }
 
   #adaptToServer(event) {
@@ -63,7 +61,6 @@ export default class TripApiService extends ApiService {
       'is_favorite': event.isFavorite,
     };
 
-    // Ненужные ключи мы удаляем
     delete adaptedEvent.dateFrom;
     delete adaptedEvent.dateTo;
     delete adaptedEvent.basePrice;

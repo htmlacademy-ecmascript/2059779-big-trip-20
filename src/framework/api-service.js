@@ -36,7 +36,7 @@ export default class ApiService {
     try {
       ApiService.checkStatus(response);
       return response;
-    } catch (err) {
+    } catch(err) {
       ApiService.catchError(err);
     }
   }
