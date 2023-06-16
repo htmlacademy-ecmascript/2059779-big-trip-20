@@ -6,21 +6,21 @@ import { FilterType, UpdateType } from '../const.js';
 export default class FilterPresenter {
   #filterContainer = null;
   #filtersModel = null;
-  #eventsModel = null;
+  #tripModel = null;
 
   #filterComponent = null;
 
-  constructor({ filterContainer, filtersModel, eventsModel }) {
+  constructor({ filterContainer, filtersModel, tripModel }) {
     this.#filterContainer = filterContainer;
     this.#filtersModel = filtersModel;
-    this.#eventsModel = eventsModel;
+    this.#tripModel = tripModel;
 
-    this.#eventsModel.addObserver(this.#modelUpdateHandler);
+    this.#tripModel.addObserver(this.#modelUpdateHandler);
     this.#filtersModel.addObserver(this.#modelUpdateHandler);
   }
 
   get filters() {
-    const events = this.#eventsModel.events;
+    const events = this.#tripModel.events;
 
     return Object.values(FilterType).map((type) => ({
       type,
