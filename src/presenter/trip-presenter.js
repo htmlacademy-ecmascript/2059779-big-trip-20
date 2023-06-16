@@ -31,6 +31,7 @@ export default class TripPresenter {
   #currentSortType = SortType.DEFAULT;
   #filterType = FilterType.EVERYTHING;
 
+  #headerPresenter = null;
   #eventPresenters = new Map();
   #newEventPresenter = null;
 
@@ -79,7 +80,7 @@ export default class TripPresenter {
   }
 
   init() {
-    //this.#renderTripListInfo();
+    this.#createHeaderPresenter();
     this.#renderFilters();
     this.#renderNewEventButton();
     this.#renderTripList();
@@ -105,13 +106,13 @@ export default class TripPresenter {
 
   #createHeaderPresenter = (updateType) => {
     if (updateType === UpdateType.INIT) {
-      const headerPresenter = new HeaderPresenter({
+      this.#headerPresenter = new HeaderPresenter({
         headerContainer: this.#headerContainer,
         tripTitle: this.#tripModel.getTripTitle(),
         tripDates: this.#tripModel.getTripDates(),
         tripPrice: this.#tripModel.getTotalPrice(),
       });
-      headerPresenter.init();
+      this.#headerPresenter.init();
     }
   };
 
@@ -156,17 +157,19 @@ export default class TripPresenter {
     }
   }
 
-  /*   #renderTripListInfo() {
-    if (updateType === UpdateType.INIT) {
-      const headerPresenter = new HeaderPresenter({
-        headerContainer: this.#headerContainer,
-        tripTitle: this.#tripModel.getTripTitle(),
-        tripDates: this.#tripModel.getTripDates(),
-        tripPrice: this.#tripModel.getTotalPrice(),
-      });
-      headerPresenter.init();
-    }
-  } */
+  #clearHeader() {
+    this.#headerPresenter.destroy();
+  }
+
+  #renderHeader() {
+    this.#headerPresenter = new HeaderPresenter({
+      headerContainer: this.#headerContainer,
+      tripTitle: this.#tripModel.getTripTitle(),
+      tripDates: this.#tripModel.getTripDates(),
+      tripPrice: this.#tripModel.getTotalPrice(),
+    });
+    this.#headerPresenter.init();
+  }
 
   #renderEmptyList() {
     this.#emptyListComponent = new EmptyListView({
@@ -253,10 +256,14 @@ export default class TripPresenter {
         this.#eventPresenters.get(data.id).init(data);
         break;
       case UpdateType.MINOR:
+        this.#clearHeader();
+        this.#renderHeader();
         this.#clearEventList();
         this.#renderTripList();
         break;
       case UpdateType.MAJOR:
+        this.#clearHeader();
+        this.#renderHeader();
         this.#clearEventList({ resetSortType: true });
         this.#renderTripList();
         break;
