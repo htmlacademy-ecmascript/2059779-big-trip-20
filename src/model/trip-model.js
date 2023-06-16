@@ -1,5 +1,6 @@
 import Observable from '../framework/observable.js';
 import { UpdateType } from '../const.js';
+import { compareEventDate } from '../utils/sort.js';
 
 export default class TripModel extends Observable {
   #service = null;
@@ -91,26 +92,34 @@ export default class TripModel extends Observable {
   }
 
   getTotalPrice() {
-    //Убрал учёт дополнительных опций. Пока не знаю, как его сделать, и нужно ли по ТЗ вообще.
-    return this.#events.reduce((totalPrice, event) => {
+    return this.events.reduce((totalPrice, event) => {
       totalPrice += event.basePrice;
-
+      const options = this.offers.find((option) => option.type === event.type);
+      if (options) {
+        event.offers.forEach((offerId) => {
+          const option = options.offers.find((offer) => offer.id === offerId);
+          if (option) {
+            totalPrice += option.price;
+          }
+        });
+      }
       return totalPrice;
     }, 0);
   }
 
   getTripDates() {
+    const sortedByDateEvents = [...this.events].sort(compareEventDate);
     let startDate = '';
     let finishDate = '';
-    switch (this.#events.length) {
+    switch (sortedByDateEvents.length) {
       case 0:
         break;
       case 1:
-        startDate = this.#events[0].dateFrom;
+        startDate = sortedByDateEvents[0].dateFrom;
         break;
       default:
-        startDate = this.#events[0].dateFrom;
-        finishDate = this.#events[this.#events.length - 1].dateTo;
+        startDate = sortedByDateEvents[0].dateFrom;
+        finishDate = sortedByDateEvents[sortedByDateEvents.length - 1].dateTo;
         break;
     }
     return {
@@ -120,34 +129,35 @@ export default class TripModel extends Observable {
   }
 
   getTripTitle() {
+    const sortedByDateEvents = [...this.events].sort(compareEventDate);
     let firstDestinationTitle = 'Set the first waypoint.';
     let middleDestinationTitle = 'Set the second waypoint.';
     let endDestinationTitle = '';
     let tripTitle = 'Route not set.';
-    switch (this.#events.length) {
+    switch (sortedByDateEvents.length) {
       case 0:
         break;
       case 1:
-        firstDestinationTitle = this.#destinations.find((point) => point.id === this.#events[0].destination).name;
+        firstDestinationTitle = this.#destinations.find((point) => point.id === sortedByDateEvents[0].destination).name;
 
         tripTitle = `${firstDestinationTitle} — Add an endpoint`;
         break;
       case 2:
-        firstDestinationTitle = this.#destinations.find((point) => point.id === this.#events[0].destination).name;
-        middleDestinationTitle = this.#destinations.find((point) => point.id === this.#events[1].destination).name;
+        firstDestinationTitle = this.#destinations.find((point) => point.id === sortedByDateEvents[0].destination).name;
+        middleDestinationTitle = this.#destinations.find((point) => point.id === sortedByDateEvents[1].destination).name;
 
         tripTitle = `${firstDestinationTitle} — ${middleDestinationTitle}`;
         break;
       case 3:
-        firstDestinationTitle = this.#destinations.find((point) => point.id === this.#events[0].destination).name;
-        middleDestinationTitle = this.#destinations.find((point) => point.id === this.#events[1].destination).name;
-        endDestinationTitle = this.#destinations.find((point) => point.id === this.#events[2].destination).name;
+        firstDestinationTitle = this.#destinations.find((point) => point.id === sortedByDateEvents[0].destination).name;
+        middleDestinationTitle = this.#destinations.find((point) => point.id === sortedByDateEvents[1].destination).name;
+        endDestinationTitle = this.#destinations.find((point) => point.id === sortedByDateEvents[2].destination).name;
 
         tripTitle = `${firstDestinationTitle} — ${middleDestinationTitle} — ${endDestinationTitle}`;
         break;
       default:
-        firstDestinationTitle = this.#destinations.find((point) => point.id === this.#events[0].destination).name;
-        endDestinationTitle = this.#destinations.find((point) => point.id === this.#events[this.#events.length - 1].destination).name;
+        firstDestinationTitle = this.#destinations.find((point) => point.id === sortedByDateEvents[0].destination).name;
+        endDestinationTitle = this.#destinations.find((point) => point.id === sortedByDateEvents[sortedByDateEvents.length - 1].destination).name;
 
         tripTitle = `${firstDestinationTitle} — … — ${endDestinationTitle}`;
     }
