@@ -155,6 +155,7 @@ function createEditEventTemplate({ state, destinations, options, isNewEvent }) {
               type="text"
               name="event-start-time"
               required
+              placeholder="d/m/y h:m"
               ${isDisabled ? 'disabled' : ''}
               value="${timeFrom}">
               &mdash;
@@ -165,6 +166,7 @@ function createEditEventTemplate({ state, destinations, options, isNewEvent }) {
               type="text"
               name="event-end-time"
               required
+              placeholder="d/m/y h:m"
               ${isDisabled ? 'disabled' : ''}
               value="${timeTo}">
           </div>
@@ -211,7 +213,7 @@ export default class EditEventView extends AbstractStatefulView {
   #datePickerFrom = null;
   #datePickerTo = null;
 
-  #isValid = false;
+  //#isValid = false;
 
   constructor({ event = EMPTY_EVENT, destinations, options, isNewEvent, onFormSubmit, onToggleClick, onDeleteClick }) {
     super();
@@ -271,13 +273,15 @@ export default class EditEventView extends AbstractStatefulView {
       optionsContainer.addEventListener('change', this.#optionClickHandler);
     }
 
-    this.element
+    this.#setDatePickers();
+
+  /*     this.element
       .querySelector('#event-start-time-1')
       .addEventListener('focus', this.#setDatePickers);
 
     this.element
       .querySelector('#event-end-time-1')
-      .addEventListener('focus', this.#setDatePickers);
+      .addEventListener('focus', this.#setDatePickers);*/
   };
 
   reset(event) {
@@ -304,12 +308,18 @@ export default class EditEventView extends AbstractStatefulView {
   #setDatePickers = () => {
     const inputFrom = this.element.querySelector('#event-start-time-1');
     const inputTo = this.element.querySelector('#event-end-time-1');
-    inputFrom.value = new Date().toISOString();
+    /*     inputFrom.value = new Date().toISOString();
     inputTo.value = new Date().toISOString();
-    this.#isValid = true;
+    this.updateElement({
+      ...this._state,
+      dateFrom: inputFrom.value,
+      dateTo: inputTo.value,
+    }); */
+    //this.#isValid = true;
     this.#datePickerFrom = flatpickr(
       inputFrom, {
         dateFormat: 'd/m/y H:i',
+        allowInput: true,
         defaultDate: this._state.dateFrom,
         maxDate: this._state.dateTo,
         onClose: this.#dateFromChangeHandler,
@@ -323,6 +333,7 @@ export default class EditEventView extends AbstractStatefulView {
     this.#datePickerTo = flatpickr(
       inputTo, {
         dateFormat: 'd/m/y H:i',
+        allowInput: true,
         defaultDate: this._state.dateTo,
         minDate: this._state.dateFrom,
         onClose: this.#dateToChangeHandler,
