@@ -14,8 +14,6 @@ function createTripDates(tripDates) {
   return `${dateFrom}&nbsp;&mdash;&nbsp;${dateTo}`;
 }
 
-//Здесь нужна будет новая функция форматирования или их комбинация, чтобы не дублировать месяц, если месяц старта и месяц окончания совпадают
-//Плюс по хорошему нужна проверка, если дата пришла пустая, то писать какую-то строку.
 function createTripInfoTemplate(tripTitle, tripDates, totalPrice) {
   return (/*html*/
     `<section class="trip-main__trip-info  trip-info">

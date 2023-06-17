@@ -36,7 +36,6 @@ export default class EventPresenter {
     this.#event = event;
 
     const prevEventComponent = this.#eventComponent;
-    const prevEventEditComponent = this.#editEventComponent;
 
     this.#eventComponent = new EventView({
       event: this.#event,
@@ -46,7 +45,7 @@ export default class EventPresenter {
       onFavoriteClick: this.#favoriteClickHandler,
     });
 
-    if (prevEventComponent === null || prevEventEditComponent === null) {
+    if (prevEventComponent === null) {
       render(this.#eventComponent, this.#listComponent);
       return;
     }
@@ -55,13 +54,7 @@ export default class EventPresenter {
       replace(this.#eventComponent, prevEventComponent);
     }
 
-    /*     if (this.#mode === Mode.EDITING) {
-      replace(this.#editEventComponent, prevEventEditComponent);
-      this.#mode = Mode.DEFAULT;
-    } */
-
     remove(prevEventComponent);
-    remove(prevEventEditComponent);
   }
 
   destroy() {
@@ -172,7 +165,7 @@ export default class EventPresenter {
   #favoriteClickHandler = () => {
     this.#handleDataUpdate(
       UserAction.UPDATE_EVENT,
-      UpdateType.MINOR,
+      UpdateType.PATCH,
       { ...this.#event, isFavorite: !this.#event.isFavorite });
   };
 }
