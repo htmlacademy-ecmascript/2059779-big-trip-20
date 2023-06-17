@@ -91,14 +91,6 @@ export default class TripModel extends Observable {
     }
   }
 
-  #getOffersByType() {
-    const offersByType = {};
-    this.offers.forEach((offer) => {
-      offersByType[offer.type] = offer.offers;
-    });
-    return offersByType;
-  }
-
   getTotalPrice() {
     const offersByType = this.#getOffersByType();
 
@@ -171,6 +163,14 @@ export default class TripModel extends Observable {
     }
 
     return tripTitle;
+  }
+
+  #getOffersByType() {
+    const offersByType = {};
+    this.offers.forEach((offer) => {
+      offersByType[offer.type] = offer.offers;
+    });
+    return offersByType;
   }
 
   #adaptToClient(event) {
