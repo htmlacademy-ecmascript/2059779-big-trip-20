@@ -91,18 +91,26 @@ export default class TripModel extends Observable {
     }
   }
 
+  #getOffersByType() {
+    const offersByType = {};
+    this.offers.forEach((offer) => {
+      offersByType[offer.type] = offer.offers;
+    });
+    return offersByType;
+  }
+
   getTotalPrice() {
+    const offersByType = this.#getOffersByType();
+
     return this.events.reduce((totalPrice, event) => {
       totalPrice += event.basePrice;
-      const options = this.offers.find((option) => option.type === event.type);
-      if (options) {
-        event.offers.forEach((offerId) => {
-          const option = options.offers.find((offer) => offer.id === offerId);
-          if (option) {
-            totalPrice += option.price;
-          }
-        });
-      }
+
+      offersByType[event.type].forEach((offer) => {
+        if (event.offers.includes(offer.id)) {
+          totalPrice += offer.price;
+        }
+      });
+
       return totalPrice;
     }, 0);
   }
