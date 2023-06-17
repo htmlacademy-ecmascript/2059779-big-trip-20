@@ -133,7 +133,7 @@ function createEditEventTemplate({ state, destinations, options, isNewEvent }) {
   const timeFrom = formatDate(dateFrom, 'DD/MM/YY HH:mm');
   const timeTo = formatDate(dateTo, 'DD/MM/YY HH:mm');
   const optionsByType = options.find((option) => option.type === type).offers;
-  const offersList = createEventOffersList(optionsByType, offers);
+  const offersList = createEventOffersList(optionsByType, offers, isDisabled);
   const offerTypes = OFFER_TYPES;
 
   return (/*html*/
@@ -224,8 +224,6 @@ export default class EditEventView extends AbstractStatefulView {
   #datePickerFrom = null;
   #datePickerTo = null;
 
-  //#isValid = false;
-
   constructor({ event = EMPTY_EVENT, destinations, options, isNewEvent, onFormSubmit, onToggleClick, onDeleteClick }) {
     super();
     this.#event = event;
@@ -285,14 +283,6 @@ export default class EditEventView extends AbstractStatefulView {
     }
 
     this.#setDatePickers();
-
-  /*     this.element
-      .querySelector('#event-start-time-1')
-      .addEventListener('focus', this.#setDatePickers);
-
-    this.element
-      .querySelector('#event-end-time-1')
-      .addEventListener('focus', this.#setDatePickers);*/
   };
 
   reset(event) {
@@ -315,18 +305,9 @@ export default class EditEventView extends AbstractStatefulView {
     }
   };
 
-  //Поменять название, если останется в качестве обработчика
   #setDatePickers = () => {
     const inputFrom = this.element.querySelector('#event-start-time-1');
     const inputTo = this.element.querySelector('#event-end-time-1');
-    /*     inputFrom.value = new Date().toISOString();
-    inputTo.value = new Date().toISOString();
-    this.updateElement({
-      ...this._state,
-      dateFrom: inputFrom.value,
-      dateTo: inputTo.value,
-    }); */
-    //this.#isValid = true;
     this.#datePickerFrom = flatpickr(
       inputFrom, {
         dateFormat: 'd/m/y H:i',
@@ -359,10 +340,6 @@ export default class EditEventView extends AbstractStatefulView {
   #formSubmitHandler = (evt) => {
     evt.preventDefault();
     this.#handleFormSubmit(EditEventView.parseStateToEvent(this._state));
-    /*     if (this.#isValid) {
-      this.#handleFormSubmit(EditEventView.parseStateToEvent(this._state));
-    } */
-
   };
 
   #toggleClickHandler = (evt) => {

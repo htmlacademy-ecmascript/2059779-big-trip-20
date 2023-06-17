@@ -31,6 +31,7 @@ export default class TripPresenter {
   #currentSortType = SortType.DEFAULT;
   #filterType = FilterType.EVERYTHING;
 
+  #headerPresenter = null;
   #eventPresenters = new Map();
   #newEventPresenter = null;
 
@@ -48,8 +49,8 @@ export default class TripPresenter {
     this.#tripModel = tripModel;
     this.#filtersModel = filtersModel;
     this.#tripModel.addObserver(this.#modelUpdateHandler);
-    this.#tripModel.addObserver(this.#createNewPresenter);
-    this.#tripModel.addObserver(this.#createHeaderPresenter);
+    this.#tripModel.addObserver(this.#newPresenterUpdateHandler);
+    this.#tripModel.addObserver(this.#modelUpdateHeaderHandler);
     this.#filtersModel.addObserver(this.#modelUpdateHandler);
   }
 
@@ -79,7 +80,6 @@ export default class TripPresenter {
   }
 
   init() {
-    //this.#renderTripListInfo();
     this.#renderFilters();
     this.#renderNewEventButton();
     this.#renderTripList();
@@ -91,7 +91,7 @@ export default class TripPresenter {
     this.#newEventPresenter.init();
   }
 
-  #createNewPresenter = (updateType) => {
+  #newPresenterUpdateHandler = (updateType) => {
     if (updateType === UpdateType.INIT) {
       this.#newEventPresenter = new NewEventPresenter({
         destinations: this.destinations,
@@ -103,17 +103,19 @@ export default class TripPresenter {
     }
   };
 
-  #createHeaderPresenter = (updateType) => {
-    if (updateType === UpdateType.INIT) {
-      const headerPresenter = new HeaderPresenter({
-        headerContainer: this.#headerContainer,
-        tripTitle: this.#tripModel.getTripTitle(),
-        tripDates: this.#tripModel.getTripDates(),
-        tripPrice: this.#tripModel.getTotalPrice(),
-      });
-      headerPresenter.init();
-    }
-  };
+  #clearHeader() {
+    this.#headerPresenter.destroy();
+  }
+
+  #renderHeader() {
+    this.#headerPresenter = new HeaderPresenter({
+      headerContainer: this.#headerContainer,
+      tripTitle: this.#tripModel.getTripTitle(),
+      tripDates: this.#tripModel.getTripDates(),
+      tripPrice: this.#tripModel.getTotalPrice(),
+    });
+    this.#headerPresenter.init();
+  }
 
   #renderLoading() {
     render(this.#loadingComponent, this.#listContainer);
@@ -155,18 +157,6 @@ export default class TripPresenter {
       remove(this.#emptyListComponent);
     }
   }
-
-  /*   #renderTripListInfo() {
-    if (updateType === UpdateType.INIT) {
-      const headerPresenter = new HeaderPresenter({
-        headerContainer: this.#headerContainer,
-        tripTitle: this.#tripModel.getTripTitle(),
-        tripDates: this.#tripModel.getTripDates(),
-        tripPrice: this.#tripModel.getTotalPrice(),
-      });
-      headerPresenter.init();
-    }
-  } */
 
   #renderEmptyList() {
     this.#emptyListComponent = new EmptyListView({
@@ -272,6 +262,13 @@ export default class TripPresenter {
         this.#renderError();
         break;
     }
+  };
+
+  #modelUpdateHeaderHandler = () => {
+    if (this.#headerPresenter) {
+      this.#clearHeader();
+    }
+    this.#renderHeader();
   };
 
   #modeChangeHandler = () => {
