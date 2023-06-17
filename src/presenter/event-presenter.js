@@ -2,7 +2,6 @@ import { render, remove, replace } from '../framework/render.js';
 import EventView from '../view/event-view';
 import EditEventView from '../view/edit-event-view';
 import { UserAction, UpdateType } from '../const.js';
-//import { isDatesEqual } from '../utils/date.js';
 
 const Mode = {
   DEFAULT: 'DEFAULT',
@@ -142,8 +141,6 @@ export default class EventPresenter {
     this.#handleDataUpdate(
       UserAction.UPDATE_EVENT,
       UpdateType.MINOR,
-      //Проверить эту функцию. Если её оставить, при сохранении с новой датой элемент из Вью просто удаляется.
-      //isDatesEqual(this.#event.dateFrom, update.dateFrom) ? UpdateType.MINOR : UpdateType.PATCH,
       update);
   };
 

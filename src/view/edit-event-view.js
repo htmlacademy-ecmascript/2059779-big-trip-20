@@ -133,7 +133,7 @@ function createEditEventTemplate({ state, destinations, options, isNewEvent }) {
   const timeFrom = formatDate(dateFrom, 'DD/MM/YY HH:mm');
   const timeTo = formatDate(dateTo, 'DD/MM/YY HH:mm');
   const optionsByType = options.find((option) => option.type === type).offers;
-  const offersList = createEventOffersList(optionsByType, offers);
+  const offersList = createEventOffersList(optionsByType, offers, isDisabled);
   const offerTypes = OFFER_TYPES;
 
   return (/*html*/

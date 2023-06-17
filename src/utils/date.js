@@ -33,14 +33,8 @@ function getDateDiff(date1, date2) {
   return dayjs.duration(dayjs(date1).diff(dayjs(date2)));
 }
 
-//Наверное нужно дать другое название функции.
-function isDatesEqual(dateA, dateB) {
-  return (dateA === null && dateB === null) || dayjs(dateA).isSame(dateB, 'D');
-}
-
 export {
   formatDate,
   getFormattedDateDiff,
   getDateDiff,
-  isDatesEqual,
 };
